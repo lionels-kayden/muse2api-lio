@@ -9,15 +9,15 @@ services:
     ports:
       - "18610:18610"
     environment:
-      # 管理与 API 鉴权 Key（从 .env 或宿主环境读取，留空则自动生成）
+      # Khóa xác thực quản trị và API (đọc từ .env hoặc môi trường host, để trống thì tự động tạo)
       - MUSE2API_KEY=${MUSE2API_KEY:-}
-      # 服务对外基准 URL，如 https://your-domain.com（留空则管理前端自动检测当前域名）
+      # URL cơ sở công khai của dịch vụ, ví dụ https://your-domain.com (để trống thì frontend quản trị tự động phát hiện tên miền hiện tại)
       - MUSE2API_PUBLIC_BASE=
-      # 超时配置（秒）
+      # Cấu hình thời gian chờ (giây)
       - MUSE2API_IMAGE_TIMEOUT=240
       - MUSE2API_VIDEO_TIMEOUT=600
       - MUSE2API_CHAT_TIMEOUT=300
     volumes:
-      # 持久化账号配置、任务日志及媒体文件
+      # Lưu trữ lâu dài cấu hình tài khoản, log tác vụ và tệp media
       - ./data:/app/data
-    shm_size: '2gb' # 保证 Chromium 渲染多标签页时不因 /dev/shm 耗尽崩溃
+    shm_size: '2gb' # Đảm bảo Chromium không bị sập do cạn kiệt /dev/shm khi kết xuất nhiều tab

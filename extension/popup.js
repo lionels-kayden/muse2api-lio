@@ -1,9 +1,9 @@
-/* Muse2API Cookie 导入 —— 读取 muse.ai 的 cookie 并 POST 到 muse2api 服务。
+/* Nhập Cookie Muse2API —— đọc cookie của muse.ai và POST đến dịch vụ muse2api.
  *
- * 关键点：用 chrome.cookies 而不是 document.cookie。
- * muse.ai 的 4 条核心 cookie（hatch_sess / hatch_gw / hatch_vml /
- * hatch_native_auth_device）都带 httpOnly，网页 JS 读不到，
- * 只有浏览器扩展的 cookies 接口能拿到。
+ * Điểm mấu chốt: dùng chrome.cookies chứ không phải document.cookie.
+ * 4 cookie cốt lõi của muse.ai (hatch_sess / hatch_gw / hatch_vml /
+ * hatch_native_auth_device) đều là httpOnly, JS trên trang web không đọc được,
+ * chỉ có API cookies của tiện ích trình duyệt mới lấy được.
  */
 
 const $ = (id) => document.getElementById(id);
@@ -17,7 +17,7 @@ function log(html, cls) {
   el.innerHTML = cls ? `<span class="${cls}">${html}</span>` : html;
 }
 
-/* 规范化服务地址：去掉结尾斜杠和 /v1 后缀 */
+/* Chuẩn hóa địa chỉ dịch vụ: bỏ dấu gạch chéo ở cuối và hậu tố /v1 */
 function normBase(v) {
   let s = (v || '').trim();
   if (!s) return '';
@@ -33,7 +33,7 @@ async function loadCfg() {
   if (c.base) $('base').value = c.base;
   if (c.key) $('key').value = c.key;
   if (c.label) $('label').value = c.label;
-  // 没有配置过就尝试从当前标签页猜一个（用户在管理页上时）
+  // Nếu chưa từng cấu hình thì thử đoán từ tab hiện tại (khi người dùng đang ở trang quản trị)
   if (!c.base) {
     try {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -43,7 +43,7 @@ async function loadCfg() {
         const k = new URLSearchParams(u.search).get('key');
         if (k) $('key').value = k;
       }
-    } catch (e) { /* 忽略 */ }
+    } catch (e) { /* bỏ qua */ }
   }
 }
 
@@ -74,27 +74,28 @@ async function run() {
   const key = $('key').value.trim();
   const label = $('label').value.trim();
 
-  if (!base) return log('请先填服务地址', 'bad');
-  if (!key) return log('请先填 API Key', 'bad');
+  if (!base) return log('Vui lòng điền địa chỉ dịch vụ trước', 'bad');
+  if (!key) return log('Vui lòng điền API Key trước', 'bad');
 
   $('go').disabled = true;
-  log('正在读取 muse.ai 的 Cookie…');
+  log('Đang đọc Cookie của muse.ai…');
 
   try {
     const { cookies, expires } = await grabCookies();
     const names = Object.keys(cookies);
     if (!names.length) {
-      return log('没读到 muse.ai 的 Cookie。\n请先在这个浏览器里打开并登录 '
-                 + 'https://muse.ai/ ，再回来点一次。', 'bad');
+      return log('Không đọc được Cookie nào của muse.ai.\n'
+                 + 'Hãy mở và đăng nhập https://muse.ai/ trong trình duyệt này, '
+                 + 'rồi quay lại bấm thêm một lần nữa.', 'bad');
     }
     const missing = ESSENTIAL.filter((n) => !(n in cookies));
     if (missing.length) {
-      log(`读到 ${names.length} 条 Cookie，但缺核心项：${missing.join('、')}\n`
-          + '说明这个浏览器还没登录成功。请登录到能看到聊天界面再试。', 'warn');
+      log(`Đọc được ${names.length} Cookie, nhưng thiếu mục cốt lõi: ${missing.join(', ')}\n`
+          + 'Nghĩa là trình duyệt này vẫn chưa đăng nhập thành công. Hãy đăng nhập đến khi thấy được giao diện trò chuyện rồi thử lại.', 'warn');
       return;
     }
 
-    log(`读到 ${names.length} 条 Cookie，正在上传到 ${base} …`);
+    log(`Đọc được ${names.length} Cookie, đang tải lên ${base} …`);
 
     const r = await fetch(base + '/admin/accounts', {
       method: 'POST',
@@ -110,25 +111,25 @@ async function run() {
     try { data = JSON.parse(text); } catch (e) { data = { raw: text }; }
 
     if (r.status === 401) {
-      return log('API Key 不对（服务返回 401）。\n'
-                 + '请到管理页「账号池」页顶部复制正确的 API Key。', 'bad');
+      return log('API Key không đúng (dịch vụ trả về 401).\n'
+                 + 'Hãy vào đầu trang「Nhóm tài khoản」của trang quản trị để sao chép lại API Key chính xác.', 'bad');
     }
     if (!r.ok) {
-      return log(`导入失败：HTTP ${r.status}\n${text.slice(0, 300)}`, 'bad');
+      return log(`Nhập thất bại: HTTP ${r.status}\n${text.slice(0, 300)}`, 'bad');
     }
 
     const a = (data.added && data.added[0]) || {};
     await saveCfg();
-    log(`✓ 导入成功\n账号标签：${a.label || label || '(自动)'}\n`
-        + `账号 ID：${a.id || '?'}\nCookie 条数：${a.cookie_count || names.length}\n`
-        + `有效期到：${a.expires_at ? new Date(a.expires_at * 1000).toLocaleString() : '未知'}\n`
-        + (data.warning ? `\n注意：${data.warning}` : ''), 'ok');
+    log(`✓ Nhập thành công\nNhãn tài khoản: ${a.label || label || '(tự động)'}\n`
+        + `ID tài khoản: ${a.id || '?'}\nSố lượng Cookie: ${a.cookie_count || names.length}\n`
+        + `Có hiệu lực đến: ${a.expires_at ? new Date(a.expires_at * 1000).toLocaleString() : 'không rõ'}\n`
+        + (data.warning ? `\nLưu ý: ${data.warning}` : ''), 'ok');
   } catch (e) {
-    log('出错了：' + (e && e.message ? e.message : String(e))
-        + '\n\n常见原因：\n'
-        + '· 服务地址填错或服务没启动\n'
-        + '· 这个地址不是 https（或证书不被信任）\n'
-        + '· 浏览器拦截了跨域请求', 'bad');
+    log('Đã xảy ra lỗi: ' + (e && e.message ? e.message : String(e))
+        + '\n\nNguyên nhân thường gặp:\n'
+        + '· Điền sai địa chỉ dịch vụ hoặc dịch vụ chưa khởi động\n'
+        + '· Địa chỉ này không phải https (hoặc chứng chỉ không được tin cậy)\n'
+        + '· Trình duyệt đã chặn yêu cầu cross-origin', 'bad');
   } finally {
     $('go').disabled = false;
   }

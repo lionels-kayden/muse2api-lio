@@ -1,13 +1,13 @@
 {
   "version": "1.6.1",
   "updated_at": "2026-10-13",
-  "repo": "https://github.com/czg86389-hub/muse2api",
+  "repo": "https://github.com/lionels-kayden/muse2api-lio",
   "highlights": [
-    "修复多账号额度查询串读：额度查询绑定对应账号的浏览器页面，避免不同账号间显示错误余额和用量。",
-    "额度读取失败或未读到有效数据时保留旧缓存，并明确报告失败状态，避免把无效结果当成实时额度。",
-    "修复保活成功误报：区分唤醒请求已接受与 VM 已运行，只有复核状态为 RUNNING 才报告唤醒成功。",
-    "管理页显示额度查询时间和过期提示；账号测试分别反馈会话有效性和额度读取状态。",
-    "维护探测不再更新最后使用时间，后台保活按续期需要执行，避免维护流量被计为用户使用或频繁触发保活。",
-    "新增离线回归测试，覆盖账号额度隔离及 VM 唤醒状态确认。"
+    "Sửa lỗi đọc chéo hạn mức đa tài khoản: truy vấn hạn mức gắn với trang trình duyệt của tài khoản tương ứng, tránh hiển thị sai số dư và mức sử dụng giữa các tài khoản khác nhau.",
+    "Khi đọc hạn mức thất bại hoặc không đọc được dữ liệu hợp lệ thì giữ cache cũ, và báo cáo rõ ràng trạng thái thất bại, tránh coi kết quả không hợp lệ là hạn mức thời gian thực.",
+    "Sửa báo nhầm giữ sống thành công: phân biệt yêu cầu đánh thức đã được chấp nhận với VM đã chạy, chỉ khi trạng thái kiểm tra lại là RUNNING mới báo đánh thức thành công.",
+    "Trang quản trị hiển thị thời gian truy vấn hạn mức và nhắc nhở hết hạn; kiểm tra tài khoản phản hồi riêng biệt tính hiệu lực của phiên và trạng thái đọc hạn mức.",
+    "Thăm dò bảo trì không còn cập nhật thời gian sử dụng cuối, giữ sống chạy nền được thực hiện theo nhu cầu gia hạn, tránh lưu lượng bảo trì bị tính là sử dụng của người dùng hoặc kích hoạt giữ sống thường xuyên.",
+    "Thêm kiểm thử hồi quy offline, bao phủ cách ly hạn mức tài khoản và xác nhận trạng thái đánh thức VM."
   ]
 }

@@ -1,4 +1,4 @@
-"""测试多账号并发调度器与隔离能力。"""
+"""Kiểm thử bộ điều phối đồng thời đa tài khoản và khả năng cách ly."""
 import os
 import sys
 import threading
@@ -7,7 +7,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
-# 确保导入当前目录下的 muse2api
+# Đảm bảo import muse2api trong thư mục hiện tại
 root = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(root))
 
@@ -20,22 +20,22 @@ def test_concurrency_lock():
     lock = app.ConcurrencyLock(limit=2)
     assert not lock.locked()
 
-    # 第一个槽位
+    # Slot thứ nhất
     assert lock.acquire(timeout=0.1)
     assert lock.locked()
 
-    # 第二个槽位（并发 = 2）
+    # Slot thứ hai (đồng thời = 2)
     assert lock.acquire(timeout=0.1)
     assert lock.locked()
 
-    # 第三个槽位应超时
+    # Slot thứ ba phải quá hạn chờ
     assert not lock.acquire(blocking=True, timeout=0.05)
 
-    # 释放一个槽位
+    # Giải phóng một slot
     lock.release()
     assert lock.locked()
 
-    # 现在第三个可以获取了
+    # Giờ slot thứ ba đã lấy được
     assert lock.acquire(timeout=0.1)
 
     lock.release()
@@ -59,33 +59,33 @@ def test_account_pool_manager():
 
     pool = app.AccountPoolManager(dummy_store)
 
-    # 线程 1 占用 acc-1
+    # Luồng 1 chiếm acc-1
     a1 = pool.acquire(timeout=0.5)
     assert a1["id"] == "acc-1"
     assert "acc-1" in pool.busy_accounts
 
-    # 线程 2 并发占用 acc-2（自动避开忙碌的 acc-1）
+    # Luồng 2 chiếm acc-2 song song (tự né acc-1 đang bận)
     a2 = pool.acquire(timeout=0.5)
     assert a2["id"] == "acc-2"
     assert "acc-2" in pool.busy_accounts
 
-    # 此时两个账号都忙，线程 3 应等待并超时
+    # Lúc này cả hai tài khoản đều bận, luồng 3 phải chờ và quá hạn
     t0 = time.monotonic()
     try:
         pool.acquire(timeout=0.1)
-        raise AssertionError("应抛出超时")
+        raise AssertionError("Phải ném ra lỗi quá hạn chờ")
     except app.MuseGenerationError:
         pass
     assert time.monotonic() - t0 >= 0.08
 
-    # 释放 acc-1 后，线程 3 能够立刻拿到 acc-1
+    # Sau khi giải phóng acc-1, luồng 3 lấy được acc-1 ngay lập tức
     pool.release(a1["id"])
     assert "acc-1" not in pool.busy_accounts
 
     a3 = pool.acquire(timeout=0.5)
     assert a3["id"] == "acc-1"
 
-    # 清理释放
+    # Dọn dẹp giải phóng
     pool.release(a2["id"])
     pool.release(a3["id"])
     assert len(pool.busy_accounts) == 0
@@ -93,7 +93,7 @@ def test_account_pool_manager():
 
 
 def test_parallel_generation_simulation():
-    """模拟两个请求使用不同账号并发执行生成。"""
+    """Mô phỏng hai yêu cầu dùng hai tài khoản khác nhau sinh tạo song song."""
     dummy_accounts = [
         {"id": "acc-1", "label": "A1", "enabled": True, "cookies": {"c": "1"}},
         {"id": "acc-2", "label": "A2", "enabled": True, "cookies": {"c": "2"}},
@@ -140,9 +140,9 @@ def test_parallel_generation_simulation():
             t2.join()
 
             assert len(results) == 2
-            assert concurrency_observed, "两个任务应在独立的线程中同时并发执行！"
-            assert set(r[1] for r in results) == {"acc-1", "acc-2"}, "两个任务应分别调度在两个独立账号上！"
-            assert len(app.ACCOUNT_POOL.busy_accounts) == 0, "任务结束后所有账号应彻底归还！"
+            assert concurrency_observed, "Hai tác vụ phải chạy song song đồng thời trên hai luồng độc lập!"
+            assert set(r[1] for r in results) == {"acc-1", "acc-2"}, "Hai tác vụ phải được điều phối trên hai tài khoản độc lập!"
+            assert len(app.ACCOUNT_POOL.busy_accounts) == 0, "Sau khi tác vụ kết thúc, mọi tài khoản phải được hoàn trả triệt để!"
     finally:
         app.store.accounts = orig_accounts
     print("PASS: test_parallel_generation_simulation")

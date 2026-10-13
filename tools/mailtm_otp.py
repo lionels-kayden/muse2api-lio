@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
-"""Mail.tm 临时邮箱：申请地址 + 轮询取验证码。
+"""Mail.tm email tạm thời: xin địa chỉ + polling lấy mã xác minh.
 
-用途：muse.ai 登录要邮箱验证码时，跑这个脚本拿到一个临时邮箱地址，
-      填进登录页，脚本会把收到的验证码打印出来。
+Công dụng: khi đăng nhập muse.ai cần mã xác minh gửi qua email, chạy script này
+           để lấy một địa chỉ email tạm thời, điền vào trang đăng nhập, script sẽ
+           in ra mã xác minh nhận được.
 
-零依赖（纯标准库）。用法：
-    python3 mailtm_otp.py                # 申请新地址并开始轮询
-    python3 mailtm_otp.py --addr a@b.c --pass xxx   # 复用已有地址
-    python3 mailtm_otp.py --timeout 600  # 轮询时长（秒），默认 900
+Không phụ thuộc gì (thuần thư viện chuẩn). Cách dùng:
+    python3 mailtm_otp.py                # xin địa chỉ mới và bắt đầu polling
+    python3 mailtm_otp.py --addr a@b.c --pass xxx   # tái sử dụng địa chỉ có sẵn
+    python3 mailtm_otp.py --timeout 600  # thời gian polling (giây), mặc định 900
 """
 import argparse, json, random, re, string, sys, time, urllib.request, urllib.error
 
@@ -15,7 +16,7 @@ API = "https://api.mail.tm"
 
 
 def req(path, method="GET", token=None, body=None):
-    """发一个请求，返回解析后的 JSON。"""
+    """Gửi một request, trả về JSON đã được phân tích."""
     data = json.dumps(body).encode() if body is not None else None
     r = urllib.request.Request(API + path, data=data, method=method)
     r.add_header("Content-Type", "application/json")
@@ -32,9 +33,9 @@ def req(path, method="GET", token=None, body=None):
 
 
 def new_account():
-    """申请一个新地址，返回 (address, password, token)。"""
+    """Xin một địa chỉ mới, trả về (address, password, token)."""
     d = req("/domains")
-    domains = d["hydra:member"] if isinstance(d, dict) else d  # 新版返回数组，旧版 hydra 包装
+    domains = d["hydra:member"] if isinstance(d, dict) else d  # bản mới trả về mảng, bản cũ bọc trong hydra
     domain = next(x["domain"] for x in domains if x.get("isActive", True))
     user = "".join(random.choices(string.ascii_lowercase + string.digits, k=12))
     addr, pwd = f"{user}@{domain}", "".join(random.choices(string.ascii_letters + string.digits, k=16))
@@ -51,9 +52,9 @@ CODE_RE = re.compile(r"(?<!\d)(\d{4,8})(?!\d)")
 
 
 def poll(token, timeout):
-    """轮询新邮件，发现验证码就打印。返回验证码或 None。"""
+    """Polling hộp thư mới, hễ thấy mã xác minh là in ra. Trả về mã hoặc None."""
     seen, deadline = set(), time.time() + timeout
-    print(f"[*] 开始轮询收件箱（最多 {timeout}s，Ctrl-C 可停）\n")
+    print(f"[*] Bắt đầu polling hộp thư đến (tối đa {timeout}s, Ctrl-C để dừng)\n")
     while time.time() < deadline:
         try:
             r = req("/messages?page=1", token=token)
@@ -68,17 +69,17 @@ def poll(token, timeout):
             frm = (full.get("from") or {}).get("address", "?")
             subj = full.get("subject", "")
             body = full.get("text") or full.get("intro") or ""
-            print(f"[+] 新邮件  来自 {frm}\n    主题：{subj}")
+            print(f"[+] Email mới  từ {frm}\n    Tiêu đề: {subj}")
             codes = CODE_RE.findall(f"{subj}\n{body}")
-            print(f"    正文：{body.strip()[:500]}")
+            print(f"    Nội dung: {body.strip()[:500]}")
             if codes:
-                print(f"\n>>> 验证码：{codes[0]}\n")
+                print(f"\n>>> Mã xác minh: {codes[0]}\n")
                 return codes[0]
-            print("    （未识别到验证码，继续等待…）\n")
+            print("    (Chưa nhận diện được mã xác minh, tiếp tục chờ…)\n")
         left = int(deadline - time.time())
-        print(f"    等待中… 剩余 {left}s", end="\r", flush=True)
+        print(f"    Đang chờ… còn {left}s", end="\r", flush=True)
         time.sleep(3)
-    print("\n[!] 超时，未收到验证码。")
+    print("\n[!] Hết thời gian, chưa nhận được mã xác minh.")
     return None
 
 
@@ -89,11 +90,11 @@ def main():
     a = ap.parse_args()
     if a.addr and a.pwd:
         addr, pwd, token = a.addr, a.pwd, login(a.addr, a.pwd)
-        print(f"[*] 复用已有地址：{addr}")
+        print(f"[*] Tái sử dụng địa chỉ có sẵn: {addr}")
     else:
         addr, pwd, token = new_account()
-        print(f"[*] 已申请新地址：{addr}\n    密码：{pwd}（复用需带上）")
-    print(f"\n=== 把下面这个地址填进 muse.ai 登录页 ===\n    {addr}\n")
+        print(f"[*] Đã xin địa chỉ mới: {addr}\n    Mật khẩu: {pwd} (giữ lại nếu muốn tái sử dụng)")
+    print(f"\n=== Điền địa chỉ dưới đây vào trang đăng nhập muse.ai ===\n    {addr}\n")
     code = poll(token, a.timeout)
     sys.exit(0 if code else 1)
 
@@ -102,4 +103,4 @@ if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print("\n[*] 已停止。")
+        print("\n[*] Đã dừng.")

@@ -1,6 +1,6 @@
 FROM python:3.11-slim-bookworm
 
-# 基础环境与 Chromium 安装
+# Cài đặt môi trường cơ bản và Chromium
 ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONUNBUFFERED=1 \
     MUSE2API_HOME=/app \
@@ -11,7 +11,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 
 WORKDIR /app
 
-# 安装 Chromium、中文字体与核心依赖
+# Cài đặt Chromium, font chữ Trung Quốc và các phụ thuộc cốt lõi
 RUN apt-get update && apt-get install -y --no-install-recommends \
     chromium \
     fonts-wqy-zenhei \
@@ -22,17 +22,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# 安装 Python 依赖
+# Cài đặt các phụ thuộc Python
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 复制代码与必要目录
-COPY admin.html app.py cdp.py config.py engine.py store.py version.json ./
+# Sao chép mã nguồn và các thư mục cần thiết
+COPY admin.html admin-v2.html app.py cdp.py config.py engine.py store.py version.json ./
 COPY deploy/ ./deploy/
 COPY extension/ ./extension/
 COPY tools/ ./tools/
 
-# 创建持久化数据目录
+# Tạo thư mục dữ liệu lưu trữ lâu dài
 RUN mkdir -p /app/data/media /app/data/downloads /root/muse2api-profiles
 
 VOLUME ["/app/data"]

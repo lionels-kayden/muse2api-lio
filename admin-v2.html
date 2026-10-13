@@ -1,0 +1,2074 @@
+<!doctype html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>muse2api · Bảng điều khiển</title>
+<style>
+/* ============================================================
+   muse2api admin v2 — design system
+   Mọi lớp đều mang tiền tố m2- để không xung đột với bản gốc.
+   ============================================================ */
+:root{
+  --m2-bg:#0b0f16;        --m2-bg-soft:#0e141d;
+  --m2-surface:#151d2b;   --m2-surface-2:#1a2333;  --m2-surface-3:#202b3e;
+  --m2-border:#243147;    --m2-border-strong:#33425c;
+  --m2-text:#e9edf6;      --m2-text-2:#9aa8c0;     --m2-text-3:#6b7a94;
+  --m2-primary:#3b82f6;   --m2-primary-h:#2f6fe0;
+  --m2-primary-soft:rgba(59,130,246,.12);
+  --m2-ok:#22c55e;  --m2-ok-soft:rgba(34,197,94,.12);
+  --m2-warn:#f59e0b; --m2-warn-soft:rgba(245,158,11,.12);
+  --m2-danger:#ef4444; --m2-danger-soft:rgba(239,68,68,.12);
+  --m2-info:#38bdf8;  --m2-info-soft:rgba(56,189,248,.12);
+  --m2-mute-soft:rgba(154,168,192,.10);
+  --m2-sp-1:4px; --m2-sp-2:8px; --m2-sp-3:12px; --m2-sp-4:16px;
+  --m2-sp-5:20px; --m2-sp-6:24px; --m2-sp-8:32px; --m2-sp-10:40px;
+  --m2-r-sm:6px; --m2-r-md:10px; --m2-r-lg:14px; --m2-r-pill:999px;
+  --m2-fs-xs:12px; --m2-fs-sm:13px; --m2-fs-md:14px;
+  --m2-fs-lg:16px; --m2-fs-xl:20px; --m2-fs-2xl:26px;
+  --m2-shadow-1:0 1px 2px rgba(0,0,0,.35);
+  --m2-shadow-2:0 12px 32px rgba(0,0,0,.45);
+  --m2-ring:0 0 0 3px rgba(59,130,246,.25);
+  --m2-mono:ui-monospace,SFMono-Regular,Consolas,"Cascadia Mono",monospace;
+  --m2-sans:"Segoe UI",system-ui,-apple-system,"Microsoft YaHei",sans-serif;
+  --m2-sidebar-w:246px;
+}
+html[data-theme="light"]{
+  --m2-bg:#f5f7fb; --m2-bg-soft:#eef2f8;
+  --m2-surface:#ffffff; --m2-surface-2:#f8fafc; --m2-surface-3:#eef2f7;
+  --m2-border:#e2e8f0; --m2-border-strong:#cbd5e1;
+  --m2-text:#0f172a; --m2-text-2:#475569; --m2-text-3:#7c8798;
+  --m2-primary:#2563eb; --m2-primary-h:#1d4ed8;
+  --m2-shadow-1:0 1px 2px rgba(15,23,42,.08);
+  --m2-shadow-2:0 10px 28px rgba(15,23,42,.14);
+  --m2-ring:0 0 0 3px rgba(37,99,235,.20);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--m2-bg);color:var(--m2-text);
+  font:var(--m2-fs-md)/1.6 var(--m2-sans);
+  min-height:100vh;-webkit-font-smoothing:antialiased;
+}
+a{color:var(--m2-primary);text-decoration:none}
+code,kbd,pre{font-family:var(--m2-mono)}
+:focus-visible{outline:2px solid var(--m2-primary);outline-offset:2px}
+
+/* ---------- Khung ứng dụng ---------- */
+.m2-app{display:grid;grid-template-columns:var(--m2-sidebar-w) 1fr;min-height:100vh}
+.m2-scrim{display:none;position:fixed;inset:0;background:rgba(3,6,12,.6);z-index:40}
+.m2-scrim.is-show{display:block}
+
+/* ---------- Sidebar ---------- */
+.m2-sidebar{
+  background:var(--m2-surface);border-right:1px solid var(--m2-border);
+  position:sticky;top:0;height:100vh;display:flex;flex-direction:column;
+  padding:var(--m2-sp-5) var(--m2-sp-3);gap:var(--m2-sp-4);z-index:50;
+}
+.m2-brand{display:flex;align-items:center;gap:10px;padding:0 var(--m2-sp-2)}
+.m2-brand__dot{
+  width:11px;height:11px;border-radius:50%;flex:0 0 auto;
+  background:linear-gradient(135deg,var(--m2-primary),#a78bfa);
+  box-shadow:0 0 14px rgba(59,130,246,.75);
+}
+.m2-brand__name{font-weight:650;font-size:var(--m2-fs-lg);letter-spacing:.2px;line-height:1.2}
+.m2-brand__sub{color:var(--m2-text-3);font-size:11.5px;line-height:1.4}
+.m2-nav{display:flex;flex-direction:column;gap:2px;overflow-y:auto;flex:1}
+.m2-navitem{
+  display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+  background:transparent;border:0;color:var(--m2-text-2);
+  padding:9px 12px;border-radius:var(--m2-r-md);
+  font:500 var(--m2-fs-sm)/1.4 var(--m2-sans);cursor:pointer;transition:.14s;
+}
+.m2-navitem:hover{background:var(--m2-mute-soft);color:var(--m2-text)}
+.m2-navitem.is-active{
+  background:var(--m2-primary-soft);color:var(--m2-text);font-weight:600;
+  box-shadow:inset 2px 0 0 var(--m2-primary);
+}
+.m2-navitem__ic{width:18px;text-align:center;font-size:13px;opacity:.85;flex:0 0 auto}
+.m2-navitem__n{
+  margin-left:auto;font-size:11px;font-weight:600;color:var(--m2-text-2);
+  background:var(--m2-surface-3);border-radius:var(--m2-r-pill);padding:1px 8px;
+}
+.m2-sidebar__foot{
+  display:flex;flex-direction:column;gap:8px;padding:var(--m2-sp-3) var(--m2-sp-2) 0;
+  border-top:1px solid var(--m2-border);font-size:var(--m2-fs-xs);
+}
+.m2-verline{display:flex;gap:5px;align-items:center;color:var(--m2-text-2);flex-wrap:wrap}
+.m2-verline__dot{color:var(--m2-text-3)}
+.m2-link{color:var(--m2-text-2);font-size:var(--m2-fs-xs);padding:2px 0}
+.m2-link:hover{color:var(--m2-primary)}
+
+/* ---------- Cột nội dung ---------- */
+.m2-main{display:flex;flex-direction:column;min-width:0}
+.m2-topbar{
+  position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:var(--m2-sp-3);
+  flex-wrap:wrap;padding:var(--m2-sp-3) var(--m2-sp-8);
+  background:var(--m2-bg);border-bottom:1px solid var(--m2-border);
+}
+.m2-burger{display:none;background:transparent;border:1px solid var(--m2-border);color:var(--m2-text);
+  border-radius:var(--m2-r-md);padding:6px 11px;font-size:15px;cursor:pointer;font-family:inherit}
+.m2-pills{display:flex;gap:var(--m2-sp-2);flex-wrap:wrap;align-items:center}
+.m2-pill{
+  display:inline-flex;align-items:center;gap:6px;font-size:var(--m2-fs-xs);
+  padding:5px 11px;border-radius:var(--m2-r-pill);
+  background:var(--m2-surface);border:1px solid var(--m2-border);color:var(--m2-text-2);white-space:nowrap;
+}
+.m2-pill b{color:var(--m2-text);font-weight:600}
+.m2-led{width:7px;height:7px;border-radius:50%;background:var(--m2-text-3);flex:0 0 auto}
+.m2-pill.is-on .m2-led{background:var(--m2-ok);box-shadow:0 0 8px var(--m2-ok)}
+.m2-pill.is-off .m2-led{background:var(--m2-danger);box-shadow:0 0 8px var(--m2-danger)}
+.m2-live{
+  display:inline-flex;align-items:center;gap:6px;font-size:var(--m2-fs-xs);color:var(--m2-text-2);
+  background:transparent;border:1px dashed var(--m2-border);border-radius:var(--m2-r-pill);
+  padding:5px 11px;cursor:pointer;font-family:inherit;
+}
+.m2-live .m2-led{background:var(--m2-ok);animation:m2bl 1.6s infinite}
+.m2-live.is-paused{border-style:solid;color:var(--m2-text-3)}
+.m2-live.is-paused .m2-led{background:var(--m2-text-3);animation:none}
+@keyframes m2bl{0%,100%{opacity:1}50%{opacity:.25}}
+.m2-keybox{
+  display:flex;align-items:center;gap:6px;margin-left:auto;
+  background:var(--m2-surface);border:1px solid var(--m2-border);
+  border-radius:var(--m2-r-md);padding:4px 6px 4px 11px;
+}
+.m2-keybox__lbl{font-size:11.5px;color:var(--m2-text-2);white-space:nowrap}
+.m2-keybox input{
+  background:transparent;border:0;color:var(--m2-text);outline:none;width:200px;
+  font-size:12.5px;font-family:var(--m2-mono);
+}
+.m2-keybox.is-ok{border-color:rgba(34,197,94,.55)}
+.m2-keybox.is-ok .m2-keybox__lbl{color:var(--m2-ok)}
+.m2-keybox.is-miss{border-color:rgba(245,158,11,.7);animation:m2pulse 1.8s infinite}
+.m2-keybox.is-miss .m2-keybox__lbl{color:var(--m2-warn)}
+@keyframes m2pulse{0%,100%{box-shadow:0 0 0 3px rgba(245,158,11,.12)}50%{box-shadow:0 0 0 5px rgba(245,158,11,.04)}}
+
+.m2-body{padding:var(--m2-sp-8) var(--m2-sp-10) var(--m2-sp-10);max-width:1360px;width:100%}
+.m2-page{display:none;animation:m2fade .18s ease}
+.m2-page.is-active{display:block}
+@keyframes m2fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+.m2-pagehead{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--m2-sp-4);margin-bottom:var(--m2-sp-6);flex-wrap:wrap}
+.m2-pagehead h1{margin:0 0 3px;font-size:var(--m2-fs-2xl);font-weight:650;letter-spacing:.2px}
+.m2-pagehead p{margin:0;color:var(--m2-text-2);font-size:var(--m2-fs-sm);max-width:720px}
+.m2-pagehead__act{display:flex;gap:var(--m2-sp-2);flex-wrap:wrap;align-items:center}
+
+/* ---------- Thẻ ---------- */
+.m2-card{
+  background:var(--m2-surface);border:1px solid var(--m2-border);
+  border-radius:var(--m2-r-lg);padding:var(--m2-sp-5);margin-bottom:var(--m2-sp-4);
+}
+.m2-card--accent{border-color:rgba(59,130,246,.45)}
+.m2-card--ok{border-color:rgba(34,197,94,.42)}
+.m2-card__head{display:flex;align-items:center;gap:var(--m2-sp-2);flex-wrap:wrap;margin-bottom:var(--m2-sp-3)}
+.m2-card__head h3{margin:0;font-size:var(--m2-fs-lg);font-weight:620}
+.m2-card__head .m2-spacer{margin-left:auto}
+.m2-tag{
+  font-size:11px;font-weight:500;color:var(--m2-text-2);
+  background:var(--m2-bg-soft);border:1px solid var(--m2-border);
+  border-radius:var(--m2-r-sm);padding:1px 7px;
+}
+.m2-hint{color:var(--m2-text-2);font-size:var(--m2-fs-xs);margin:0 0 var(--m2-sp-3);line-height:1.75}
+.m2-hint:last-child{margin-bottom:0}
+.m2-hint b{color:var(--m2-text)}
+.m2-hint code{background:var(--m2-bg-soft);border:1px solid var(--m2-border);border-radius:5px;padding:1px 6px;font-size:12px;color:var(--m2-primary)}
+
+/* ---------- Biểu mẫu ---------- */
+.m2-formgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:var(--m2-sp-4)}
+.m2-formgrid--tight{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+.m2-field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.m2-field--wide{grid-column:1/-1}
+.m2-label{font-size:var(--m2-fs-sm);color:var(--m2-text-2);font-weight:500}
+.m2-help{font-size:var(--m2-fs-xs);color:var(--m2-text-3);line-height:1.6}
+.m2-input,.m2-textarea,.m2-select{
+  width:100%;background:var(--m2-bg-soft);color:var(--m2-text);
+  border:1px solid var(--m2-border);border-radius:var(--m2-r-md);
+  padding:9px 12px;font-size:var(--m2-fs-sm);font-family:inherit;
+  outline:none;transition:.14s;
+}
+.m2-textarea{font-family:var(--m2-mono);resize:vertical;line-height:1.55}
+.m2-input:focus,.m2-textarea:focus,.m2-select:focus{border-color:var(--m2-primary);box-shadow:var(--m2-ring)}
+.m2-input[readonly]{color:var(--m2-text-2)}
+.m2-inputgroup{display:flex;gap:6px;align-items:center}
+.m2-inputgroup .m2-input{flex:1;font-family:var(--m2-mono);font-size:12.5px}
+.m2-formactions{display:flex;gap:10px;flex-wrap:wrap;margin-top:var(--m2-sp-4)}
+
+/* ---------- Nút ---------- */
+.m2-btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  border-radius:var(--m2-r-md);padding:9px 16px;font-size:var(--m2-fs-sm);
+  font-family:inherit;font-weight:500;cursor:pointer;transition:.14s;
+  background:var(--m2-surface-3);color:var(--m2-text);border:1px solid var(--m2-border);
+  white-space:nowrap;text-decoration:none;
+}
+.m2-btn:hover{background:var(--m2-surface-2);border-color:var(--m2-border-strong)}
+.m2-btn:active{transform:translateY(1px)}
+.m2-btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.m2-btn--primary{background:var(--m2-primary);border-color:var(--m2-primary);color:#fff}
+.m2-btn--primary:hover{background:var(--m2-primary-h);border-color:var(--m2-primary-h)}
+.m2-btn--ghost{background:transparent}
+.m2-btn--ghost:hover{background:var(--m2-mute-soft)}
+.m2-btn--danger{background:transparent;border-color:rgba(239,68,68,.45);color:var(--m2-danger)}
+.m2-btn--danger:hover{background:var(--m2-danger-soft)}
+.m2-btn--danger-solid{background:var(--m2-danger);border-color:var(--m2-danger);color:#fff}
+.m2-btn--danger-solid:hover{background:#dc2626;border-color:#dc2626}
+.m2-btn--sm{padding:5px 10px;font-size:var(--m2-fs-xs);border-radius:var(--m2-r-sm)}
+.m2-btn--lg{padding:11px 22px;font-size:var(--m2-fs-md)}
+.m2-btn--block{width:100%}
+.m2-spin{
+  display:inline-block;width:13px;height:13px;flex:0 0 auto;
+  border:2px solid rgba(255,255,255,.28);border-top-color:currentColor;
+  border-radius:50%;animation:m2sp .7s linear infinite;
+}
+.m2-btn:not(.m2-btn--primary):not(.m2-btn--danger-solid) .m2-spin{border-color:var(--m2-mute-soft);border-top-color:var(--m2-text)}
+@keyframes m2sp{to{transform:rotate(360deg)}}
+
+/* ---------- Thống kê ---------- */
+.m2-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:var(--m2-sp-3);margin-bottom:var(--m2-sp-4)}
+.m2-stat{background:var(--m2-surface);border:1px solid var(--m2-border);border-radius:var(--m2-r-lg);padding:var(--m2-sp-4) var(--m2-sp-5)}
+.m2-stat__k{color:var(--m2-text-2);font-size:var(--m2-fs-xs);margin-bottom:4px}
+.m2-stat__v{font-size:25px;font-weight:650;letter-spacing:.4px;line-height:1.1}
+.m2-stat--ok .m2-stat__v{color:var(--m2-ok)}
+.m2-stat--bad .m2-stat__v{color:var(--m2-danger)}
+.m2-stat--warn .m2-stat__v{color:var(--m2-warn)}
+.m2-stat--info .m2-stat__v{color:var(--m2-primary)}
+
+/* ---------- Bảng ---------- */
+.m2-tablewrap{overflow-x:auto;border:1px solid var(--m2-border);border-radius:var(--m2-r-lg);background:var(--m2-surface)}
+.m2-table{width:100%;border-collapse:collapse;font-size:var(--m2-fs-sm)}
+.m2-table th{
+  background:var(--m2-bg-soft);color:var(--m2-text-2);font-weight:500;font-size:var(--m2-fs-xs);
+  text-align:left;padding:10px 13px;white-space:nowrap;border-bottom:1px solid var(--m2-border);
+}
+.m2-table td{padding:11px 13px;border-bottom:1px solid var(--m2-border);vertical-align:middle}
+.m2-table tbody tr:last-child td{border-bottom:0}
+.m2-table tbody tr:hover{background:var(--m2-primary-soft)}
+.m2-mono{font-family:var(--m2-mono);font-size:12px;color:var(--m2-text-2)}
+.m2-ellip{max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:middle}
+.m2-acts{display:flex;gap:6px;flex-wrap:wrap}
+.m2-empty{text-align:center;color:var(--m2-text-2);padding:34px 10px;font-size:var(--m2-fs-sm)}
+
+/* ---------- Huy hiệu ---------- */
+.m2-badge{
+  display:inline-flex;align-items:center;gap:5px;font-size:11.5px;
+  padding:3px 9px;border-radius:var(--m2-r-pill);border:1px solid;white-space:nowrap;
+}
+.m2-badge--ok{color:var(--m2-ok);border-color:rgba(34,197,94,.35);background:var(--m2-ok-soft)}
+.m2-badge--bad{color:var(--m2-danger);border-color:rgba(239,68,68,.35);background:var(--m2-danger-soft)}
+.m2-badge--warn{color:var(--m2-warn);border-color:rgba(245,158,11,.35);background:var(--m2-warn-soft)}
+.m2-badge--info{color:var(--m2-primary);border-color:rgba(59,130,246,.35);background:var(--m2-primary-soft)}
+.m2-badge--mute{color:var(--m2-text-2);border-color:var(--m2-border);background:var(--m2-bg-soft)}
+
+/* ---------- Cảnh báo ---------- */
+.m2-alert{
+  display:none;align-items:flex-start;gap:13px;
+  border-radius:var(--m2-r-lg);padding:var(--m2-sp-4) var(--m2-sp-5);
+  margin-bottom:var(--m2-sp-4);font-size:var(--m2-fs-sm);line-height:1.75;border:1px solid;
+}
+.m2-alert.is-show{display:flex}
+.m2-alert__ic{font-size:19px;line-height:1.25;flex:0 0 auto}
+.m2-alert__body{flex:1;min-width:0}
+.m2-alert__act{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:var(--m2-sp-2)}
+.m2-alert--warn{background:var(--m2-warn-soft);border-color:rgba(245,158,11,.42)}
+.m2-alert--warn b{color:var(--m2-warn)}
+.m2-alert--info{background:var(--m2-info-soft);border-color:rgba(56,189,248,.42)}
+.m2-alert--info b{color:var(--m2-info)}
+.m2-alert code{background:rgba(0,0,0,.28);padding:2px 7px;border-radius:5px;font-size:12.5px;color:var(--m2-info)}
+
+/* ---------- Modal ---------- */
+.m2-modal{position:fixed;inset:0;z-index:80;display:none;place-items:center;background:rgba(3,6,12,.62);padding:var(--m2-sp-4)}
+.m2-modal.is-open{display:grid}
+.m2-modal__panel{
+  width:100%;max-width:540px;background:var(--m2-surface);border:1px solid var(--m2-border);
+  border-radius:var(--m2-r-lg);padding:var(--m2-sp-6);box-shadow:var(--m2-shadow-2);
+  animation:m2pop .16s ease;max-height:90vh;overflow-y:auto;
+}
+@keyframes m2pop{from{opacity:0;transform:scale(.97) translateY(6px)}to{opacity:1;transform:none}}
+.m2-modal__title{font-size:var(--m2-fs-lg);font-weight:620;margin:0 0 var(--m2-sp-2)}
+.m2-modal__desc{color:var(--m2-text-2);font-size:var(--m2-fs-sm);line-height:1.7;margin:0 0 var(--m2-sp-4);word-break:break-word}
+.m2-modal__desc code{background:var(--m2-bg-soft);border:1px solid var(--m2-border);border-radius:5px;padding:1px 6px}
+.m2-modal__foot{display:flex;gap:10px;justify-content:flex-end;margin-top:var(--m2-sp-5);flex-wrap:wrap}
+
+/* ---------- Toast ---------- */
+#m2Toasts{position:fixed;right:20px;bottom:20px;z-index:99;display:flex;flex-direction:column;gap:9px;align-items:flex-end}
+.m2-toast{
+  background:var(--m2-surface);border:1px solid var(--m2-border);border-left:3px solid var(--m2-primary);
+  border-radius:var(--m2-r-md);padding:11px 15px;font-size:var(--m2-fs-sm);max-width:390px;
+  box-shadow:var(--m2-shadow-2);animation:m2slide .2s ease;color:var(--m2-text);
+}
+.m2-toast.is-ok{border-left-color:var(--m2-ok)}
+.m2-toast.is-bad{border-left-color:var(--m2-danger)}
+.m2-toast.is-warn{border-left-color:var(--m2-warn)}
+@keyframes m2slide{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+
+/* ---------- Media ---------- */
+.m2-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:var(--m2-sp-4)}
+.m2-tile{position:relative;background:var(--m2-bg-soft);border:1px solid var(--m2-border);border-radius:var(--m2-r-lg);overflow:hidden;transition:.16s}
+.m2-tile:hover{border-color:var(--m2-border-strong);transform:translateY(-2px)}
+.m2-tile.is-selected{border-color:var(--m2-primary);box-shadow:0 0 0 1px var(--m2-primary)}
+.m2-tile__check{
+  position:absolute;top:8px;left:8px;z-index:3;display:flex;align-items:center;justify-content:center;
+  width:22px;height:22px;border-radius:var(--m2-r-sm);background:rgba(8,12,20,.82);
+  backdrop-filter:blur(4px);border:1px solid var(--m2-border);cursor:pointer;
+}
+.m2-tile__check:hover{border-color:var(--m2-primary)}
+.m2-tile__check input{width:14px;height:14px;margin:0;cursor:pointer;accent-color:var(--m2-primary)}
+.m2-tile__thumb{height:150px;background:#05080e;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.m2-tile__thumb img,.m2-tile__thumb video{width:100%;height:100%;object-fit:contain;display:block}
+.m2-tile__meta{padding:9px 11px;font-size:11.5px;color:var(--m2-text-2)}
+.m2-tile__nm{font-family:var(--m2-mono);color:var(--m2-text);font-size:11px;word-break:break-all}
+.m2-tile__ac{display:flex;gap:6px;margin-top:7px;align-items:center;flex-wrap:wrap}
+
+/* ---------- Kết quả tạo ---------- */
+.m2-result{margin-top:var(--m2-sp-4);padding:var(--m2-sp-4);background:var(--m2-bg-soft);border:1px dashed var(--m2-border);border-radius:var(--m2-r-lg);display:none}
+.m2-result.is-show{display:block}
+.m2-result img,.m2-result video{max-width:100%;max-height:420px;border-radius:var(--m2-r-md);display:block;margin-top:10px;background:#05080e}
+.m2-result pre{
+  background:#05080e;border:1px solid var(--m2-border);border-radius:var(--m2-r-md);
+  padding:12px;overflow:auto;max-height:280px;font-size:12px;color:#9fe8c0;margin:10px 0 0;
+  white-space:pre-wrap;word-break:break-all;
+}
+
+/* ---------- Các bước ---------- */
+.m2-step{display:flex;gap:13px;align-items:flex-start;padding:var(--m2-sp-4) 0;border-bottom:1px solid var(--m2-border)}
+.m2-step:last-child{border-bottom:0;padding-bottom:0}
+.m2-step:first-child{padding-top:0}
+.m2-step__no{
+  flex:0 0 26px;width:26px;height:26px;border-radius:50%;background:var(--m2-primary);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:650;margin-top:1px;
+}
+.m2-step__body{flex:1;min-width:0}
+.m2-step__body>b{display:block;margin-bottom:3px}
+.m2-ol{margin:8px 0 0;padding-left:0;list-style:none;counter-reset:m2ol}
+.m2-ol>li{position:relative;padding:5px 0 5px 30px;font-size:var(--m2-fs-xs);color:var(--m2-text-2);line-height:1.85;counter-increment:m2ol}
+.m2-ol>li::before{
+  content:counter(m2ol);position:absolute;left:0;top:6px;width:19px;height:19px;border-radius:50%;
+  background:var(--m2-bg-soft);border:1px solid var(--m2-border);color:var(--m2-text);
+  font-size:11px;font-weight:650;display:flex;align-items:center;justify-content:center;
+}
+.m2-ol>li>b{color:var(--m2-text)}
+.m2-ol>li code{background:var(--m2-bg-soft);border:1px solid var(--m2-border);border-radius:5px;padding:1px 6px;font-size:12px;color:var(--m2-primary)}
+kbd{
+  display:inline-block;background:var(--m2-bg-soft);border:1px solid var(--m2-border);border-bottom-width:2px;
+  border-radius:5px;padding:1px 7px;font-size:11.5px;color:var(--m2-text);line-height:1.6;white-space:nowrap;
+}
+
+/* ---------- Tài liệu ---------- */
+.m2-doc{max-width:920px}
+.m2-doc h4{margin:var(--m2-sp-5) 0 var(--m2-sp-2);font-size:var(--m2-fs-md);color:var(--m2-text)}
+.m2-doc h4:first-of-type{margin-top:0}
+.m2-pre{
+  background:#05080e;border:1px solid var(--m2-border);border-radius:var(--m2-r-md);
+  padding:14px;overflow:auto;font-size:12.5px;line-height:1.65;color:#cfe3ff;position:relative;margin:0;
+}
+.m2-pre .m2-cp{
+  position:absolute;top:8px;right:8px;font-size:11px;padding:3px 9px;
+  background:var(--m2-surface);border:1px solid var(--m2-border);color:var(--m2-text-2);
+  border-radius:var(--m2-r-sm);cursor:pointer;font-family:inherit;
+}
+.m2-pre .m2-cp:hover{color:var(--m2-text);border-color:var(--m2-border-strong)}
+.m2-k{color:#c4b5fd}.m2-s{color:#7ee2a8}.m2-c{color:#5b6478}
+
+/* ---------- Khung xương tải ---------- */
+.m2-skel{height:14px;border-radius:6px;background:linear-gradient(90deg,var(--m2-surface-2) 25%,var(--m2-surface-3) 50%,var(--m2-surface-2) 75%);background-size:200% 100%;animation:m2sh 1.3s infinite}
+@keyframes m2sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ---------- Đáp ứng màn hình ---------- */
+@media (max-width:1080px){
+  .m2-body{padding:var(--m2-sp-6) var(--m2-sp-6) var(--m2-sp-8)}
+  .m2-topbar{padding:var(--m2-sp-3) var(--m2-sp-6)}
+}
+@media (max-width:860px){
+  .m2-app{grid-template-columns:1fr}
+  .m2-sidebar{
+    position:fixed;left:0;top:0;height:100vh;width:var(--m2-sidebar-w);
+    transform:translateX(-100%);transition:transform .22s ease;box-shadow:var(--m2-shadow-2);
+  }
+  .m2-sidebar.is-open{transform:none}
+  .m2-burger{display:inline-flex}
+  .m2-keybox{margin-left:0;width:100%;order:3}
+  .m2-keybox input{width:100%}
+  .m2-formgrid{grid-template-columns:1fr}
+  .m2-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+  .m2-body{padding:var(--m2-sp-5) var(--m2-sp-4) var(--m2-sp-8)}
+  .m2-topbar{padding:var(--m2-sp-3) var(--m2-sp-4)}
+  .m2-pagehead h1{font-size:var(--m2-fs-xl)}
+  .m2-result img,.m2-result video{max-height:280px}
+  #m2Toasts{left:12px;right:12px;bottom:12px;align-items:stretch}
+  .m2-toast{max-width:none}
+  .m2-modal{place-items:end center;padding:0}
+  .m2-modal__panel{max-width:none;border-radius:var(--m2-r-lg) var(--m2-r-lg) 0 0;max-height:92vh}
+  .m2-btn,.m2-navitem{min-height:38px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms!important;transition-duration:.001ms!important}
+}
+</style>
+</head>
+<body>
+<div class="m2-app">
+
+  <!-- ==================== Sidebar ==================== -->
+  <aside class="m2-sidebar" id="m2Sidebar">
+    <div class="m2-brand">
+      <span class="m2-brand__dot"></span>
+      <div>
+        <div class="m2-brand__name">muse2api</div>
+        <div class="m2-brand__sub">Hạn mức web Muse · API reverse proxy</div>
+      </div>
+    </div>
+
+    <nav class="m2-nav">
+      <button class="m2-navitem is-active" data-page="overview"><span class="m2-navitem__ic">◧</span>Tổng quan</button>
+      <button class="m2-navitem" data-page="accounts"><span class="m2-navitem__ic">▤</span>Tài khoản<span class="m2-navitem__n" id="navAccCount">0</span></button>
+      <button class="m2-navitem" data-page="cookie"><span class="m2-navitem__ic">🍪</span>Lấy Cookie</button>
+      <button class="m2-navitem" data-page="tasks"><span class="m2-navitem__ic">◔</span>Lịch sử tác vụ</button>
+      <button class="m2-navitem" data-page="media"><span class="m2-navitem__ic">▦</span>Thư viện media</button>
+      <button class="m2-navitem" data-page="play"><span class="m2-navitem__ic">▶</span>Kiểm thử API</button>
+      <button class="m2-navitem" data-page="docs"><span class="m2-navitem__ic">≡</span>Tài liệu tích hợp</button>
+      <button class="m2-navitem" data-page="update"><span class="m2-navitem__ic">⟳</span>Cập nhật</button>
+    </nav>
+
+    <div class="m2-sidebar__foot">
+      <div class="m2-verline">
+        <span class="m2-verline__dot">●</span><span id="m2VerText">v1.6.1</span>
+      </div>
+      <button class="m2-btn m2-btn--ghost m2-btn--sm" id="btnRepoTop" onclick="goPage('update')">📦 Kiểm tra phiên bản</button>
+      <a class="m2-link" href="https://github.com/lionels-kayden/muse2api-lio" target="_blank" rel="noopener">Kho GitHub ↗</a>
+      <a class="m2-link" href="https://linux.do/" target="_blank" rel="noopener">Cộng đồng LINUX DO ↗</a>
+      <a class="m2-link" href="/admin/classic">⇄ Chuyển sang giao diện cổ điển</a>
+    </div>
+  </aside>
+  <div class="m2-scrim" id="m2Scrim" onclick="closeSidebar()"></div>
+
+  <!-- ==================== Cột nội dung ==================== -->
+  <div class="m2-main">
+    <header class="m2-topbar">
+      <button class="m2-burger" onclick="openSidebar()" aria-label="Mở menu">☰</button>
+      <div class="m2-pills">
+        <span class="m2-pill" id="pSvc"><span class="m2-led"></span>Dịch vụ <b>—</b></span>
+        <span class="m2-pill" id="pAcc"><span class="m2-led"></span>Tài khoản <b>—</b></span>
+        <span class="m2-pill" id="pBr"><span class="m2-led"></span>Trình duyệt <b>—</b></span>
+        <button class="m2-live" id="live" onclick="toggleLive()" title="Bấm để tạm dừng / tiếp tục tự động làm mới">
+          <span class="m2-led"></span><span id="liveTxt">Tự động làm mới</span>
+        </button>
+        <button class="m2-btn m2-btn--ghost m2-btn--sm" id="btnTheme" onclick="toggleTheme()" title="Đổi giao diện sáng / tối">🌗</button>
+      </div>
+      <span class="m2-keybox" id="keyBox">
+        <span class="m2-keybox__lbl" id="keyLbl">API Key</span>
+        <input id="key" type="password" placeholder="Dán khoá bắt đầu bằng m2a_" autocomplete="off">
+        <button class="m2-btn m2-btn--sm" onclick="saveKey()">Lưu</button>
+      </span>
+    </header>
+
+    <div class="m2-body">
+      <!-- Banner cập nhật phiên bản mới -->
+      <div class="m2-alert m2-alert--info" id="updateBanner">
+        <span class="m2-alert__ic">🔔</span>
+        <div class="m2-alert__body">
+          <b>Kho chính thức của muse2api đã phát hành phiên bản mới.</b>
+          <span class="m2-badge m2-badge--info" id="updBannerVer" style="margin-left:8px">Phiên bản mới</span>
+          <div style="color:var(--m2-text-2);font-size:var(--m2-fs-sm)" id="updBannerMsg">Kho chính thức đã có commit mới về tính năng hoặc tối ưu hiệu năng.</div>
+          <div class="m2-alert__act">
+            <button class="m2-btn m2-btn--primary m2-btn--sm" id="btnBannerUpgrade" onclick="upgradeNow()">⚡ Nâng cấp trực tuyến một chạm</button>
+            <button class="m2-btn m2-btn--ghost m2-btn--sm" onclick="goPage('update')">Xem nội dung cập nhật</button>
+            <button class="m2-btn m2-btn--ghost m2-btn--sm" onclick="dismissUpdateBanner()">Tạm không nhắc</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Banner chưa đăng nhập -->
+      <div class="m2-alert m2-alert--warn" id="authBanner">
+        <span class="m2-alert__ic">🔑</span>
+        <div class="m2-alert__body">
+          <b>Cần điền API Key trước thì trang mới đọc được dữ liệu.</b>
+          <div style="color:var(--m2-text-2)">
+            API Key là “mật khẩu truy cập” của chính dịch vụ này, dùng để ngăn người khác dùng chùa hạn mức tài khoản Muse của bạn.
+            Nó <b style="color:var(--m2-text)">không phải</b> mật khẩu tài khoản Muse, mà là chuỗi ký tự ngẫu nhiên sinh ra khi triển khai (bắt đầu bằng <code>m2a_</code>).
+            Dán vào ô ở thanh trên cùng, bấm “Lưu” là xong — trình duyệt sẽ ghi nhớ cho lần sau.
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== Trang: Tổng quan ==================== -->
+      <section class="m2-page is-active" data-page="overview">
+        <div class="m2-pagehead">
+          <div>
+            <h1>Tổng quan</h1>
+            <p>Trạng thái dịch vụ, thông tin tích hợp và số liệu pool tài khoản muse.ai.</p>
+          </div>
+          <div class="m2-pagehead__act">
+            <button class="m2-btn m2-btn--ghost" onclick="refreshAll()">↻ Làm mới</button>
+            <button class="m2-btn m2-btn--primary" onclick="goPage('cookie')">+ Thêm tài khoản</button>
+          </div>
+        </div>
+
+        <div class="m2-alert m2-alert--warn" id="expWarn">
+          <span class="m2-alert__ic">⏳</span>
+          <div class="m2-alert__body">
+            <span id="expWarnText"></span>
+            <div class="m2-alert__act">
+              <button class="m2-btn m2-btn--ghost m2-btn--sm" onclick="goPage('cookie')">Đi đăng nhập lại</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="m2-card m2-card--accent">
+          <div class="m2-card__head">
+            <h3>Thông tin tích hợp</h3>
+            <span class="m2-tag">Điền hai giá trị này vào dự án hạ nguồn</span>
+          </div>
+          <div class="m2-hint">Điền hai mục dưới đây vào dự án của bạn là gọi được. BASE URL chính là tiền tố địa chỉ API.</div>
+          <div class="m2-formgrid">
+            <div class="m2-field">
+              <label class="m2-label" for="inBase">BASE URL (địa chỉ API)</label>
+              <div class="m2-inputgroup">
+                <input class="m2-input" type="text" id="inBase" readonly>
+                <button class="m2-btn m2-btn--ghost m2-btn--sm" onclick="copyEl('inBase')">Sao chép</button>
+              </div>
+            </div>
+            <div class="m2-field">
+              <label class="m2-label" for="inKey">API Key (khoá truy cập)</label>
+              <div class="m2-inputgroup">
+                <input class="m2-input" type="text" id="inKey" readonly>
+                <button class="m2-btn m2-btn--ghost m2-btn--sm" id="keyEye" onclick="toggleKey()">Hiện</button>
+                <button class="m2-btn m2-btn--ghost m2-btn--sm" onclick="copyKey()">Sao chép</button>
+                <button class="m2-btn m2-btn--danger m2-btn--sm" onclick="rotateKey()">Tạo lại</button>
+              </div>
+            </div>
+          </div>
+          <div class="m2-hint" style="margin-top:var(--m2-sp-3)">
+            Tên model: <code>muse-spark</code> (hội thoại / code), <code>muse-image</code> (tạo ảnh), <code>muse-video</code> (tạo video).
+            Ví dụ gọi đầy đủ xem ở trang “Tài liệu tích hợp”.
+          </div>
+        </div>
+
+        <div class="m2-stats">
+          <div class="m2-stat m2-stat--info"><div class="m2-stat__k">Tổng số tài khoản</div><div class="m2-stat__v" id="sTotal">0</div></div>
+          <div class="m2-stat m2-stat--ok"><div class="m2-stat__k">Khả dụng</div><div class="m2-stat__v" id="sOk">0</div></div>
+          <div class="m2-stat m2-stat--bad"><div class="m2-stat__k">Bất thường</div><div class="m2-stat__v" id="sBad">0</div></div>
+          <div class="m2-stat m2-stat--warn"><div class="m2-stat__k">Đã vô hiệu</div><div class="m2-stat__v" id="sDis">0</div></div>
+          <div class="m2-stat"><div class="m2-stat__k">Tệp media</div><div class="m2-stat__v" id="sMedia">0</div></div>
+        </div>
+
+        <div class="m2-card">
+          <div class="m2-card__head"><h3>Lối tắt</h3></div>
+          <div class="m2-formactions" style="margin-top:0">
+            <button class="m2-btn" onclick="goPage('accounts')">▤ Quản lý tài khoản</button>
+            <button class="m2-btn" onclick="goPage('cookie')">🍪 Lấy Cookie</button>
+            <button class="m2-btn" onclick="goPage('tasks')">◔ Lịch sử tác vụ</button>
+            <button class="m2-btn" onclick="goPage('media')">▦ Thư viện media</button>
+            <button class="m2-btn" onclick="goPage('play')">▶ Kiểm thử API</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== Trang: Tài khoản ==================== -->
+      <section class="m2-page" data-page="accounts">
+        <div class="m2-pagehead">
+          <div>
+            <h1>Tài khoản</h1>
+            <p>Quản lý pool cookie muse.ai · luân chuyển LRU · giữ sống nền mỗi 30 phút.</p>
+          </div>
+          <div class="m2-pagehead__act">
+            <button class="m2-btn m2-btn--primary" id="btnKeepaliveAll" onclick="keepaliveAll()">⚡ Giữ sống tất cả</button>
+            <button class="m2-btn m2-btn--ghost" onclick="loadPool()">↻ Làm mới</button>
+          </div>
+        </div>
+
+        <div class="m2-card">
+          <div class="m2-card__head">
+            <h3>Thêm tài khoản</h3>
+            <span class="m2-tag">Hỗ trợ nhập hàng loạt</span>
+          </div>
+          <div class="m2-hint">
+            Sao chép chuỗi Cookie của <b>muse.ai</b> từ trình duyệt rồi dán vào là được. Các cookie quan trọng:
+            <code>hatch_sess</code>, <code>hatch_gw</code>, <code>hatch_vml</code>.
+            Khi nhập hàng loạt, mỗi dòng một tài khoản, định dạng <code>nhãn | chuỗi cookie</code> (nhãn có thể bỏ qua).
+          </div>
+          <div class="m2-formgrid">
+            <div class="m2-field">
+              <label class="m2-label" for="newLabel">Nhãn tài khoản (dùng cho nhập đơn lẻ)</label>
+              <input class="m2-input" type="text" id="newLabel" placeholder="ví dụ muse-main">
+            </div>
+            <div class="m2-field m2-field--wide">
+              <label class="m2-label" for="newCookie">Chuỗi Cookie</label>
+              <textarea class="m2-textarea" id="newCookie" rows="4" placeholder="hatch_sess=...; hatch_gw=...; hatch_vml=...&#10;hoặc hàng loạt:&#10;acc-01 | hatch_sess=...; hatch_gw=...&#10;acc-02 | hatch_sess=...; hatch_gw=..."></textarea>
+              <span class="m2-help">Dán nhiều dòng để nhập hàng loạt; một dòng thì nhập đơn lẻ theo nhãn ở trên.</span>
+            </div>
+          </div>
+          <div class="m2-formactions">
+            <button class="m2-btn m2-btn--primary m2-btn--lg" onclick="addAccount(false)">Nhập tài khoản</button>
+            <button class="m2-btn m2-btn--ghost" onclick="clearNewCookie()">Xoá trống</button>
+          </div>
+        </div>
+
+        <div class="m2-card">
+          <div class="m2-card__head">
+            <h3>Danh sách tài khoản</h3>
+            <span class="m2-tag" id="poolCount">0</span>
+            <span class="m2-badge m2-badge--ok m2-card__head m2-spacer" style="margin-left:auto">● Giữ sống tự động mỗi 30 phút</span>
+          </div>
+          <div class="m2-hint">
+            Hệ thống bật <b>giữ sống im lặng mỗi 30 phút ở chế độ nền</b> và <b>luân chuyển công bằng nhiều tài khoản (LRU)</b>.
+            “Kiểm thử” sẽ thực sự mở muse.ai để xác minh phiên.
+          </div>
+          <div class="m2-tablewrap">
+            <table class="m2-table">
+              <thead><tr>
+                <th>Nhãn</th><th>ID tài khoản</th><th>Trạng thái</th><th>Hiệu lực</th><th>Hạn mức</th>
+                <th>Bật</th><th>Cookie</th><th>Dùng lần cuối</th><th>Ghi chú</th><th style="min-width:250px">Thao tác</th>
+              </tr></thead>
+              <tbody id="poolBody"><tr><td colspan="10" class="m2-empty">Đang tải…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+      <section class="m2-page" data-page="cookie">
+        <div class="m2-pagehead">
+          <div>
+            <h1>Lấy Cookie</h1>
+            <p>Ba cách lấy cookie muse.ai: tiện ích trình duyệt (khuyến nghị), sao chép thủ công, hoặc dán / script trên máy.</p>
+          </div>
+          <div class="m2-pagehead__act">
+            <a class="m2-btn m2-btn--primary" href="/admin/extension" download>⬇ Tải tiện ích</a>
+            <button class="m2-btn m2-btn--ghost" onclick="loadExtFiles()">Xem gồm tệp nào</button>
+          </div>
+        </div>
+
+        <div class="m2-card m2-card--ok">
+          <div class="m2-card__head">
+            <h3>Cách 1: Tiện ích trình duyệt</h3>
+            <span class="m2-tag">Khuyến nghị · Không dòng lệnh · Đa nền tảng</span>
+          </div>
+          <div class="m2-hint">
+            Dùng một tiện ích nhỏ trên trình duyệt để đồng bộ <b>trạng thái đăng nhập muse.ai đã có sẵn trên máy của chính bạn</b> sang đây.
+            Không cần cài Python, không cần mở terminal, không cần gõ lệnh.<br>
+            <b>Vì sao bắt buộc phải dùng tiện ích</b>: 4 cookie cốt lõi của muse.ai đều mang cờ
+            <code>httpOnly</code>, script trên trang web (gõ <code>document.cookie</code> trong F12, bookmarklet)
+            không đọc được; chỉ có API <code>cookies</code> của tiện ích trình duyệt mới lấy được.
+          </div>
+
+          <div class="m2-step">
+            <div class="m2-step__no">1</div>
+            <div class="m2-step__body">
+              <b>Tải và giải nén tiện ích</b>
+              <div class="m2-hint" style="margin:4px 0 9px">Giải nén vào một thư mục mà bạn sẽ không xoá, ví dụ <code>D:\muse2api-extension</code>.</div>
+              <div class="m2-formactions" style="margin-top:0;align-items:center">
+                <a class="m2-btn m2-btn--primary" href="/admin/extension" download>⬇ Tải muse2api-extension.zip</a>
+                <button class="m2-btn m2-btn--ghost m2-btn--sm" onclick="loadExtFiles()">Xem gồm những tệp nào</button>
+                <span class="m2-help" id="extFiles"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="m2-step">
+            <div class="m2-step__no">2</div>
+            <div class="m2-step__body">
+              <b>Nạp tiện ích trong trình duyệt</b>
+              <div class="m2-hint" style="margin:4px 0 9px">Ví dụ với Chrome (các trình duyệt nhân Chromium như Edge / Brave / Cốc Cốc có các bước tương tự):</div>
+              <ol class="m2-ol">
+                <li>Nhập <code>chrome://extensions</code> vào thanh địa chỉ rồi Enter</li>
+                <li>Bật công tắc <b>Chế độ dành cho nhà phát triển</b> ở góc trên bên phải</li>
+                <li>Bấm <b>Tải tiện ích chưa đóng gói</b> ở góc trên bên trái</li>
+                <li>Chọn <b>thư mục</b> đã giải nén ở bước 1 (không phải từng tệp bên trong)</li>
+              </ol>
+            </div>
+          </div>
+
+          <div class="m2-step">
+            <div class="m2-step__no">3</div>
+            <div class="m2-step__body">
+              <b>Đăng nhập muse.ai, rồi bấm biểu tượng tiện ích để nhập</b>
+              <div class="m2-hint" style="margin:4px 0 9px">
+                Trước tiên mở <code>https://muse.ai/</code> trong trình duyệt của chính bạn và đăng nhập (cho đến khi thấy giao diện chat),
+                sau đó bấm biểu tượng tiện ích trên thanh công cụ, điền hai mục dưới đây vào, bấm “Đọc và nhập”.
+              </div>
+              <div class="m2-formgrid">
+                <div class="m2-field">
+                  <label class="m2-label" for="exBase">BASE URL (điền vào tiện ích)</label>
+                  <div class="m2-inputgroup">
+                    <input class="m2-input" type="text" id="exBase" readonly>
+                    <button class="m2-btn m2-btn--ghost m2-btn--sm" onclick="copyEl('exBase')">Sao chép</button>
+                  </div>
+                </div>
+                <div class="m2-field">
+                  <label class="m2-label" for="exKey">API Key (điền vào tiện ích)</label>
+                  <div class="m2-inputgroup">
+                    <input class="m2-input" type="text" id="exKey" readonly>
+                    <button class="m2-btn m2-btn--ghost m2-btn--sm" onclick="copyExKey()">Sao chép</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="m2-card">
+          <div class="m2-card__head">
+            <h3>Cách 2: Sao chép thủ công</h3>
+            <span class="m2-tag">Không cài đặt · Phương án dự phòng</span>
+          </div>
+          <div class="m2-hint">
+            Nếu không muốn cài tiện ích, có thể tự tay lấy chuỗi cookie ra. Mấu chốt là dùng
+            <b>tiêu đề yêu cầu trong bảng “Mạng”</b>, chứ không phải Console — dòng <code>cookie: </code>
+            trong tiêu đề yêu cầu <b>chứa cả những cookie httpOnly</b>, Console không đọc được.
+          </div>
+          <ol class="m2-ol" style="margin-top:10px">
+            <li>Mở và đăng nhập <code>https://muse.ai/</code> trong trình duyệt của chính bạn, dừng ở giao diện chat</li>
+            <li>Nhấn <kbd>F12</kbd> để mở công cụ nhà phát triển, chuyển sang bảng <b>Mạng / Network</b></li>
+            <li>Nhấn <kbd>F5</kbd> làm mới trang để danh sách yêu cầu hiện nội dung</li>
+            <li>Bấm <b>một yêu cầu muse.ai bất kỳ</b> trong danh sách (cái đầu tiên là được)</li>
+            <li>Bên phải tìm <b>Tiêu đề / Headers</b> → cuộn xuống <b>Tiêu đề yêu cầu / Request Headers</b></li>
+            <li>Tìm dòng bắt đầu bằng <code>cookie: </code>, <b>sao chép toàn bộ chuỗi sau dấu hai chấm</b> (từ <code>hatch_sess=</code> cho đến hết dòng)</li>
+            <li>Dán vào ô nhập của “Cách 3” bên dưới, bấm nhập</li>
+          </ol>
+          <div class="m2-hint" style="margin-top:10px;color:var(--m2-warn)">
+            Lưu ý: là <code>cookie: </code> trong <b>tiêu đề yêu cầu</b>, không phải “tiêu đề phản hồi”.
+            <code>set-cookie</code> trong tiêu đề phản hồi chỉ có một phần cookie, sẽ bị thiếu.
+          </div>
+        </div>
+        <div class="m2-card">
+          <div class="m2-card__head">
+            <h3>Cách 3: Dán để nhập / Script trên máy</h3>
+            <span class="m2-tag">Nâng cao</span>
+          </div>
+          <div class="m2-hint">Nếu đã có chuỗi cookie, dán thẳng vào đây để nhập (chuỗi sao chép thủ công ở Cách 2 cũng dán vào đây).</div>
+          <div class="m2-formgrid">
+            <div class="m2-field">
+              <label class="m2-label" for="mLabel">Nhãn tài khoản</label>
+              <input class="m2-input" type="text" id="mLabel" placeholder="ví dụ acc-01">
+            </div>
+            <div class="m2-field m2-field--wide">
+              <label class="m2-label" for="mCookie">Chuỗi Cookie</label>
+              <textarea class="m2-textarea" id="mCookie" rows="3" placeholder="hatch_sess=...; hatch_gw=...; hatch_vml=...; hatch_native_auth_device=..."></textarea>
+            </div>
+          </div>
+          <div class="m2-formactions">
+            <button class="m2-btn m2-btn--primary m2-btn--lg" onclick="addAccount(true)">Nhập tài khoản</button>
+          </div>
+          <div class="m2-hint" style="margin-top:var(--m2-sp-5);padding-top:var(--m2-sp-4);border-top:1px solid var(--m2-border)">
+            Nếu bạn quen dùng dòng lệnh, hoặc muốn đăng nhập bằng trình duyệt độc lập (không đụng đến trình duyệt hằng ngày), cũng có thể dùng script này.
+            Nó chỉ dùng thư viện chuẩn của Python, <b>không cần pip cài đặt bất cứ thứ gì</b>.
+          </div>
+          <div class="m2-formgrid" style="margin-top:10px">
+            <div class="m2-field">
+              <label class="m2-label">① Tải script</label>
+              <div class="m2-inputgroup">
+                <a class="m2-btn m2-btn--ghost m2-btn--sm" href="/admin/cookie-helper?download=1" download>⬇ get_muse_cookie.py</a>
+                <a class="m2-btn m2-btn--ghost m2-btn--sm" href="/admin/cookie-helper" target="_blank" rel="noopener">Xem mã nguồn</a>
+              </div>
+            </div>
+            <div class="m2-field m2-field--wide">
+              <label class="m2-label">② Chạy (địa chỉ và khoá đã được điền sẵn)</label>
+              <pre class="m2-pre" id="cmdBox"><span class="m2-cp" onclick="copyCmd()">Sao chép</span><span id="cmdText">Đang tạo lệnh…</span></pre>
+            </div>
+          </div>
+          <div class="m2-hint" style="margin-top:8px">
+            ③ Đăng nhập muse.ai trong cửa sổ trình duyệt hiện ra → script tự động bắt và tải lên → tự động đóng cửa sổ.
+          </div>
+        </div>
+
+        <div class="m2-card">
+          <div class="m2-card__head">
+            <h3>Giải thích hiệu lực Cookie</h3>
+            <span class="m2-tag">Đo thực tế</span>
+          </div>
+          <div class="m2-hint" style="margin:0 0 12px">Hiệu lực đo thực tế của từng cookie muse.ai (các tài khoản khác nhau có thể hơi khác):</div>
+          <div class="m2-tablewrap"><table class="m2-table">
+            <thead><tr><th>cookie</th><th>httpOnly</th><th>Hiệu lực đo thực tế</th><th>Tác dụng</th></tr></thead>
+            <tbody>
+              <tr><td class="m2-mono">hatch_sess</td><td>Có</td><td><b style="color:var(--m2-ok)">khoảng 30 ngày</b></td><td>Phiên chính, quyết định có đăng nhập được hay không</td></tr>
+              <tr><td class="m2-mono">hatch_gw</td><td>Có</td><td><b style="color:var(--m2-ok)">khoảng 1 năm</b></td><td>Token gateway</td></tr>
+              <tr><td class="m2-mono">hatch_vml</td><td>Có</td><td><b style="color:var(--m2-danger)">khoảng 2 ngày</b></td><td>Token xác minh ngắn hạn, <b>quyết định tuổi thọ tài khoản</b></td></tr>
+              <tr><td class="m2-mono">hatch_native_auth_device</td><td>Có</td><td><b style="color:var(--m2-ok)">khoảng 30 ngày</b></td><td>Mã nhận diện thiết bị (khách ẩn danh cũng có, không phải thông tin đăng nhập)</td></tr>
+            </tbody>
+          </table></div>
+          <div class="m2-hint" style="margin:12px 0 0;line-height:1.85">
+            <b>Tài khoản thực sự sống được bao lâu?</b> Phụ thuộc vào cookie cốt lõi hết hạn sớm nhất, tức là
+            <code>hatch_vml</code> — khoảng <b>2 ngày</b>.<br>
+            <b style="color:var(--m2-warn)">Lưu ý: 2 ngày này không được kéo dài nhờ “dùng nhiều”.</b>
+            Dịch vụ này sau mỗi lần tạo xong đều đọc lại cookie mới mà muse.ai cấp và ghi vào pool tài khoản
+            (nên bạn sẽ thấy giá trị ở cột “Hiệu lực” có cập nhật), nhưng thời điểm hết hạn của cookie cốt lõi
+            <b>không bị đẩy lùi</b> (đã làm thí nghiệm đối chiếu trước và sau khi tạo để xác nhận).<br>
+            <b>Nên: khoảng 2 ngày phải nhập lại một lần.</b> May là rất nhanh — bấm một cái vào biểu tượng tiện ích là xong.<br>
+            <b>Khuyến nghị nhập nhiều tài khoản một lúc</b>: pool tài khoản luân chuyển theo “lâu nhất chưa dùng”, nhiều tài khoản vừa ổn định hơn,
+            vừa có thể dàn trải việc nhập lại (mỗi ngày nhập một cái, thay vì tất cả tài khoản cùng hết hạn).<br>
+            <b>Khi nào phải nhập lại?</b> Khi cột “Hiệu lực” trong danh sách tài khoản chuyển thành
+            <span class="m2-badge m2-badge--bad">Đã hết hạn</span>, trạng thái chuyển thành
+            <span class="m2-badge m2-badge--bad">Bất thường</span>, hoặc xuất hiện dấu “Thiếu cốt lõi”.
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== Trang: Lịch sử tác vụ ==================== -->
+      <section class="m2-page" data-page="tasks">
+        <div class="m2-pagehead">
+          <div>
+            <h1>Lịch sử tác vụ</h1>
+            <p>Toàn bộ tác vụ tạo ảnh / video đã gửi, kèm trạng thái và kết quả.</p>
+          </div>
+          <div class="m2-pagehead__act">
+            <button class="m2-btn m2-btn--ghost" onclick="loadTasks()">↻ Làm mới</button>
+            <button class="m2-btn m2-btn--danger" onclick="clearTasks()">Xoá toàn bộ</button>
+          </div>
+        </div>
+        <div class="m2-card">
+          <div class="m2-card__head">
+            <h3>Lịch sử tác vụ tạo</h3>
+            <span class="m2-tag" id="taskCount">0</span>
+          </div>
+          <div class="m2-hint">Tạo video là tác vụ bất đồng bộ, trạng thái sẽ đi từ queued → processing → succeeded / failed.</div>
+          <div class="m2-tablewrap"><table class="m2-table">
+            <thead><tr>
+              <th>ID tác vụ</th><th>Loại</th><th>Prompt</th><th>Trạng thái</th>
+              <th>Thời gian</th><th>Thời điểm tạo</th><th>Kết quả / Lỗi</th><th></th>
+            </tr></thead>
+            <tbody id="taskBody"><tr><td colspan="8" class="m2-empty">Đang tải…</td></tr></tbody>
+          </table></div>
+        </div>
+      </section>
+
+      <!-- ==================== Trang: Thư viện media ==================== -->
+      <section class="m2-page" data-page="media">
+        <div class="m2-pagehead">
+          <div>
+            <h1>Thư viện media</h1>
+            <p>Tất cả ảnh / video đã tạo và lưu xuống đĩa — tải trực tiếp hoặc đưa liên kết cho dự án hạ nguồn dùng.</p>
+          </div>
+          <div class="m2-pagehead__act">
+            <button class="m2-btn m2-btn--ghost" onclick="loadMedia()">↻ Làm mới</button>
+            <button class="m2-btn m2-btn--ghost" id="btnSelectAllMedia" onclick="toggleSelectAllMedia()">Chọn tất cả</button>
+            <button class="m2-btn m2-btn--danger" id="btnDelSelectedMedia" onclick="delSelectedMedia()" style="display:none">Xoá mục đã chọn (<span id="selMediaCount">0</span>)</button>
+          </div>
+        </div>
+        <div class="m2-card">
+          <div class="m2-card__head">
+            <h3>Danh sách tệp</h3>
+            <span class="m2-tag" id="mediaCount">0</span>
+          </div>
+          <div class="m2-grid" id="mediaGrid"><div class="m2-empty">Đang tải…</div></div>
+        </div>
+      </section>
+
+      <!-- ==================== Trang: Kiểm thử API ==================== -->
+      <section class="m2-page" data-page="play">
+        <div class="m2-pagehead">
+          <div>
+            <h1>Kiểm thử API</h1>
+            <p>Gọi muse.ai thật qua API tương thích OpenAI để tạo ảnh và video, xem trước kết quả ngay trên trang.</p>
+          </div>
+        </div>
+
+        <div class="m2-card">
+          <div class="m2-card__head">
+            <h3>Kiểm thử tạo ảnh</h3>
+            <span class="m2-tag">POST /v1/images/generations</span>
+          </div>
+          <div class="m2-hint">Gọi muse.ai thật để tạo, ảnh trả về sau khoảng 10–30 giây.</div>
+          <div class="m2-formgrid">
+            <div class="m2-field">
+              <label class="m2-label" for="imgPrompt">Prompt</label>
+              <input class="m2-input" type="text" id="imgPrompt" value="Một chú chó Shiba đội mũ phi hành gia, phong cách cyberpunk, nền đèn neon">
+            </div>
+            <div class="m2-field">
+              <label class="m2-label" for="imgSize">Tỷ lệ</label>
+              <select class="m2-select" id="imgSize"><option>1:1</option><option>16:9</option><option>9:16</option><option>4:3</option><option>3:4</option></select>
+            </div>
+          </div>
+          <div class="m2-formactions">
+            <button class="m2-btn m2-btn--primary m2-btn--lg" id="imgBtn" onclick="runImage()">Bắt đầu tạo ảnh</button>
+          </div>
+          <div class="m2-result" id="imgRes"></div>
+        </div>
+
+        <div class="m2-card">
+          <div class="m2-card__head">
+            <h3>Kiểm thử tạo video</h3>
+            <span class="m2-tag">POST /v1/videos</span>
+          </div>
+          <div class="m2-hint">Tác vụ bất đồng bộ, thường hoàn thành trong 60–120 giây, trang sẽ tự động thăm dò tiến độ.</div>
+          <div class="m2-formgrid m2-formgrid--tight">
+            <div class="m2-field m2-field--wide">
+              <label class="m2-label" for="vidPrompt">Prompt</label>
+              <input class="m2-input" type="text" id="vidPrompt" value="Một chú mèo con màu cam bước chậm rãi trên bãi cỏ, nắng đẹp">
+            </div>
+            <div class="m2-field">
+              <label class="m2-label" for="vidDur">Thời lượng (giây)</label>
+              <input class="m2-input" type="number" id="vidDur" value="5" min="1" max="30">
+            </div>
+            <div class="m2-field">
+              <label class="m2-label" for="vidSize">Tỷ lệ</label>
+              <select class="m2-select" id="vidSize"><option>16:9</option><option>9:16</option><option>1:1</option></select>
+            </div>
+          </div>
+          <div class="m2-formactions">
+            <button class="m2-btn m2-btn--primary m2-btn--lg" id="vidBtn" onclick="runVideo()">Bắt đầu tạo video</button>
+          </div>
+          <div class="m2-result" id="vidRes"></div>
+        </div>
+      </section>
+
+      <!-- ==================== Trang: Tài liệu tích hợp ==================== -->
+      <section class="m2-page" data-page="docs">
+        <div class="m2-pagehead">
+          <div>
+            <h1>Tài liệu tích hợp</h1>
+            <p>API tương thích phong cách OpenAI — dự án hạ nguồn chỉ cần đổi base_url và api_key.</p>
+          </div>
+        </div>
+
+        <div class="m2-card m2-doc">
+          <div class="m2-hint">
+            BASE URL: <code id="dBase">—</code>
+          </div>
+
+          <h4>1. Model khả dụng</h4>
+          <div class="m2-tablewrap"><table class="m2-table">
+            <thead><tr><th>ID model</th><th>Mục đích</th><th>API</th></tr></thead>
+            <tbody>
+              <tr><td class="m2-mono">muse-spark</td><td>Hội thoại văn bản / code (hỗ trợ streaming)</td><td class="m2-mono">POST /v1/chat/completions<br>POST /v1/responses</td></tr>
+              <tr><td class="m2-mono">muse-image</td><td>Text-to-image / chỉnh sửa ảnh</td><td class="m2-mono">POST /v1/images/generations</td></tr>
+              <tr><td class="m2-mono">muse-video</td><td>Text-to-video / image-to-video</td><td class="m2-mono">POST /v1/videos → GET /v1/videos/{id}</td></tr>
+            </tbody>
+          </table></div>
+          <div class="m2-hint" style="margin-top:6px">
+            Ba model này chính là năng lực thật của dòng Muse: <b>Muse Spark</b> (ngôn ngữ / code), <b>Muse Image</b> (tạo ảnh),
+            <b>Muse Video</b> (tạo video). Trang web muse.ai là agent tự định tuyến, giao diện không có bộ chọn model,
+            nên trường <code>model</code> chỉ dùng để tương thích với hạ nguồn — truyền các tên quen thuộc như <code>gpt-4o</code>,
+            <code>claude-sonnet-4</code>, <code>dall-e-3</code> sẽ tự động được ánh xạ sang năng lực tương ứng.
+          </div>
+
+          <h4>2. Hội thoại / viết code</h4>
+          <pre class="m2-pre"><span class="m2-cp" onclick="cp(this)">Sao chép</span><span class="m2-c"># Không streaming</span>
+curl -X POST <span class="m2-s">"BASE/v1/chat/completions"</span> \
+  -H <span class="m2-s">"Authorization: Bearer $MUSE2API_KEY"</span> \
+  -H <span class="m2-s">"Content-Type: application/json"</span> \
+  -d <span class="m2-s">'{"model":"muse-spark","messages":[{"role":"user","content":"viết một hàm quick sort bằng Python"}]}'</span>
+
+<span class="m2-c"># Streaming: thêm "stream":true, trả về SSE chuẩn (data: {...} / data: [DONE])</span></pre>
+
+          <h4>3. Tạo ảnh (curl)</h4>
+          <pre class="m2-pre"><span class="m2-cp" onclick="cp(this)">Sao chép</span>curl -X POST <span class="m2-s">"BASE/v1/images/generations"</span> \
+  -H <span class="m2-s">"Authorization: Bearer $MUSE2API_KEY"</span> \
+  -H <span class="m2-s">"Content-Type: application/json"</span> \
+  -d <span class="m2-s">'{"prompt":"một chú chó Shiba đội mũ phi hành gia","size":"1:1","response_format":"url"}'</span>
+
+<span class="m2-c"># Trả về</span>
+{<span class="m2-k">"created"</span>:1790148495,<span class="m2-k">"data"</span>:[{
+  <span class="m2-k">"revised_prompt"</span>: <span class="m2-s">"một chú chó Shiba đội mũ phi hành gia"</span>,
+  <span class="m2-k">"url"</span>: <span class="m2-s">"http://your-server:18610/v1/media/xxxx.webp"</span>,
+  <span class="m2-k">"kind"</span>: <span class="m2-s">"image"</span>,<span class="m2-k">"bytes"</span>:23860}]}
+
+<span class="m2-c"># url là địa chỉ tuyệt đối đầy đủ, có thể đưa thẳng cho hạ nguồn render / tải về; /v1/media/* không cần xác thực.</span>
+<span class="m2-c"># Muốn base64 thì truyền "response_format":"b64_json".</span></pre>
+
+          <h4>4. Tạo video (curl, bất đồng bộ)</h4>
+          <pre class="m2-pre"><span class="m2-cp" onclick="cp(this)">Sao chép</span><span class="m2-c"># ① Tạo tác vụ</span>
+curl -X POST <span class="m2-s">"BASE/v1/videos"</span> \
+  -H <span class="m2-s">"Authorization: Bearer $MUSE2API_KEY"</span> \
+  -H <span class="m2-s">"Content-Type: application/json"</span> \
+  -d <span class="m2-s">'{"prompt":"một chú mèo con bước đi trên bãi cỏ","duration":5,"size":"16:9"}'</span>
+<span class="m2-c"># → {"id":"task_xxx","status":"queued"}</span>
+
+<span class="m2-c"># ② Thăm dò kết quả</span>
+curl <span class="m2-s">"BASE/v1/videos/task_xxx"</span> -H <span class="m2-s">"Authorization: Bearer $MUSE2API_KEY"</span>
+<span class="m2-c"># → {"status":"succeeded","result":{"url":"/v1/media/xxx.mp4"}}</span></pre>
+
+          <h4>5. Python (tương thích openai SDK)</h4>
+          <pre class="m2-pre"><span class="m2-cp" onclick="cp(this)">Sao chép</span><span class="m2-k">from</span> openai <span class="m2-k">import</span> OpenAI
+<span class="m2-k">import</span> time
+
+client = OpenAI (base_url=<span class="m2-s">"BASE/v1"</span>, api_key=<span class="m2-s">"m2a_..."</span>)
+
+<span class="m2-c"># Tạo ảnh</span>
+r = client.images.generate (model=<span class="m2-s">"muse-image"</span>, prompt=<span class="m2-s">"một chú chó Shiba đội mũ phi hành gia"</span>)
+<span class="m2-k">print</span> (r.data[<span class="m2-s">0</span>].url)
+
+<span class="m2-c"># Tạo video (gọi API gốc, vì là tác vụ bất đồng bộ)</span>
+<span class="m2-k">import</span> requests
+t = requests.post (<span class="m2-s">"BASE/v1/videos"</span>, json={<span class="m2-s">"prompt"</span>: <span class="m2-s">"mèo con bước đi"</span>,<span class="m2-s">"duration"</span>: <span class="m2-s">5</span>},
+                  headers={<span class="m2-s">"Authorization"</span>: <span class="m2-s">"Bearer m2a_..."</span>}).json()
+<span class="m2-k">while</span> <span class="m2-k">True</span>:
+    s = requests.get (<span class="m2-s">f"BASE/v1/videos/{t['id']}"</span>,
+                     headers={<span class="m2-s">"Authorization"</span>: <span class="m2-s">"Bearer m2a_..."</span>}).json()
+    <span class="m2-k">if</span> s[<span class="m2-s">"status"</span>] <span class="m2-k">in</span> (<span class="m2-s">"succeeded"</span>,<span class="m2-s">"failed"</span>): <span class="m2-k">break</span>
+    time.sleep (<span class="m2-s">5</span>)
+<span class="m2-k">print</span> (s)</pre>
+
+          <h4>6. API quản trị</h4>
+          <div class="m2-tablewrap"><table class="m2-table">
+            <thead><tr><th>Phương thức</th><th>Đường dẫn</th><th>Mô tả</th></tr></thead>
+            <tbody>
+              <tr><td class="m2-mono">GET</td><td class="m2-mono">/admin/status</td><td>Tổng quan dịch vụ + pool tài khoản + tác vụ gần đây</td></tr>
+              <tr><td class="m2-mono">GET</td><td class="m2-mono">/admin/accounts</td><td>Danh sách tài khoản</td></tr>
+              <tr><td class="m2-mono">POST</td><td class="m2-mono">/admin/accounts</td><td>Thêm tài khoản (một dòng / văn bản hàng loạt batch)</td></tr>
+              <tr><td class="m2-mono">PATCH</td><td class="m2-mono">/admin/accounts/{id}</td><td>Đổi nhãn / bật vô hiệu</td></tr>
+              <tr><td class="m2-mono">DELETE</td><td class="m2-mono">/admin/accounts/{id}</td><td>Xoá tài khoản</td></tr>
+              <tr><td class="m2-mono">POST</td><td class="m2-mono">/admin/accounts/{id}/test</td><td>Xác minh hiệu lực phiên thật (tiện thể làm mới hạn mức)</td></tr>
+              <tr><td class="m2-mono">POST</td><td class="m2-mono">/admin/accounts/{id}/quota</td><td>Đọc hạn mức còn lại của tài khoản theo thời gian thực</td></tr>
+              <tr><td class="m2-mono">POST</td><td class="m2-mono">/admin/accounts/{id}/cookies</td><td>Cập nhật cookie của tài khoản đó</td></tr>
+              <tr><td class="m2-mono">GET</td><td class="m2-mono">/admin/tasks</td><td>Lịch sử tác vụ</td></tr>
+              <tr><td class="m2-mono">GET</td><td class="m2-mono">/admin/media</td><td>Danh sách thư viện media</td></tr>
+              <tr><td class="m2-mono">POST</td><td class="m2-mono">/admin/media/delete</td><td>Xoá hàng loạt tệp media</td></tr>
+            </tbody>
+          </table></div>
+
+          <h4>7. Xác thực</h4>
+          <div class="m2-hint" style="margin:0">
+            Ngoài <code>/healthz</code>, <code>/readyz</code>, <code>/v1/media/*</code>, các API còn lại đều cần
+            <code>Authorization: Bearer &lt;API Key&gt;</code>. API Key được cấu hình trong
+            <code>MUSE2API_KEY</code> của tệp <code>/opt/muse2api/.env</code> trên server.
+          </div>
+
+          <h4>8. Tích hợp các loại client / agent</h4>
+          <div class="m2-hint">Bất kỳ client nào hỗ trợ “endpoint tương thích OpenAI tuỳ chỉnh” đều chỉ cần điền ba giá trị là dùng được:</div>
+          <div class="m2-tablewrap" style="margin-top:8px"><table class="m2-table">
+            <thead><tr><th>Mục cấu hình</th><th>Điền gì</th></tr></thead>
+            <tbody>
+              <tr><td>Base URL / địa chỉ API</td><td class="m2-mono">http://&lt;IP hoặc tên miền server của bạn&gt;:18610/v1</td></tr>
+              <tr><td>API Key</td><td class="m2-mono">m2a_... (cái trong “Thông tin tích hợp” ở trang Tổng quan)</td></tr>
+              <tr><td>Tên model</td><td class="m2-mono">muse-spark</td></tr>
+            </tbody>
+          </table></div>
+
+          <div class="m2-hint" style="margin-top:14px">
+            <b>Tên model điền bừa cũng dùng được</b>: các tên quen thuộc (<code>gpt-4o</code>, <code>gpt-5</code>,
+            <code>claude-sonnet-4</code>, <code>deepseek-chat</code>, <code>gemini-2.5-pro</code> v.v.)
+            sẽ tự động được ánh xạ sang năng lực tương ứng; tên hoàn toàn chưa từng thấy sẽ được truyền nguyên văn, phía muse.ai vốn đã tự định tuyến,
+            nên không ảnh hưởng kết quả.
+          </div>
+
+          <h4 style="margin-top:18px">Xem theo loại client có dùng được không</h4>
+          <div class="m2-tablewrap"><table class="m2-table">
+            <thead><tr><th>Loại client</th><th>Năng lực phụ thuộc</th><th>Trạng thái</th></tr></thead>
+            <tbody>
+              <tr><td>Hội thoại / chat (bản desktop, Web UI, tiện ích trình duyệt)</td><td class="m2-mono">POST /v1/chat/completions</td><td><span class="m2-badge m2-badge--ok">✅ Khả dụng</span></td></tr>
+              <tr><td>Xuất streaming (hiệu ứng máy đánh chữ)</td><td class="m2-mono">stream:true (SSE chuẩn)</td><td><span class="m2-badge m2-badge--ok">✅ Khả dụng</span></td></tr>
+              <tr><td>Tiện ích gợi ý code / gợi ý inline</td><td class="m2-mono">POST /v1/chat/completions</td><td><span class="m2-badge m2-badge--ok">✅ Khả dụng</span></td></tr>
+              <tr><td>Công cụ dịch / tóm tắt / giải thích</td><td class="m2-mono">POST /v1/chat/completions</td><td><span class="m2-badge m2-badge--ok">✅ Khả dụng</span></td></tr>
+              <tr><td>Client vẽ hình</td><td class="m2-mono">POST /v1/images/generations</td><td><span class="m2-badge m2-badge--ok">✅ Khả dụng</span></td></tr>
+              <tr><td>Client tạo video</td><td class="m2-mono">POST /v1/videos (thăm dò bất đồng bộ)</td><td><span class="m2-badge m2-badge--ok">✅ Khả dụng</span></td></tr>
+              <tr><td>Chế độ Agent tự chủ cần “gọi công cụ”</td><td class="m2-mono">tool_calls / function calling</td><td><span class="m2-badge m2-badge--warn">⚠️ Không khả dụng</span></td></tr>
+            </tbody>
+          </table></div>
+
+          <div class="m2-hint" style="margin-top:8px">
+            <b>Về hạn chế “gọi công cụ” này (quan trọng, đã đo thực tế):</b><br>
+            Trợ lý web của muse.ai có chính sách từ chối căn chỉnh rõ ràng với “xuất JSON giả gọi công cụ” — nguyên văn đo được là
+            “Tôi sẽ không xuất 'giả gọi công cụ' theo định dạng JSON đó——tôi không có công cụ get_weather này”.
+            Đã thử thích ứng bằng ba cách diễn đạt khác nhau, ở vị trí khác nhau của prompt, tất cả đều thất bại.<br>
+            Nên: chế độ <b>Agent tự chủ</b> phụ thuộc vào <code>tool_calls</code> (tự đọc ghi tệp, thực thi lệnh kiểu đó) không kết nối được;
+            nhưng mọi cách dùng <b>kiểu hỏi đáp</b> — hội thoại, viết code, giải thích, dịch, tóm tắt, tạo ảnh, tạo video — <b>đều hoàn toàn khả dụng</b>.<br>
+            Nếu client cố tình gửi kèm trường <code>tools</code>, API sẽ không báo lỗi, sẽ bỏ qua khai báo công cụ và trả lời bình thường như hội thoại thường.
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== Trang: Cập nhật ==================== -->
+      <section class="m2-page" data-page="update">
+        <div class="m2-pagehead">
+          <div>
+            <h1>Cập nhật</h1>
+            <p>So sánh phiên bản đang chạy với kho chính thức trên GitHub và nâng cấp nóng trực tuyến một chạm.</p>
+          </div>
+          <div class="m2-pagehead__act">
+            <button class="m2-btn m2-btn--primary" id="btnRepoPull" onclick="upgradeNow()">⚡ Cập nhật trực tuyến</button>
+            <button class="m2-btn m2-btn--ghost" onclick="loadRepoStatus(true)">🔍 Kiểm tra lại</button>
+          </div>
+        </div>
+
+        <div class="m2-card m2-card--accent">
+          <div class="m2-card__head">
+            <h3>Trạng thái phiên bản</h3>
+            <span class="m2-badge m2-badge--info" id="repoBadge">Đang kiểm tra…</span>
+            <a href="https://github.com/lionels-kayden/muse2api-lio" target="_blank" rel="noopener" class="m2-tag m2-spacer" style="margin-left:auto">lionels-kayden/muse2api-lio ↗</a>
+          </div>
+          <div class="m2-hint" id="repoStatusDesc">Đang so sánh trực tiếp phiên bản cục bộ với phiên bản mới nhất của kho chính thức trên GitHub…</div>
+          <div id="repoCommitsBox" style="margin-top:10px;background:var(--m2-bg-soft);border:1px solid var(--m2-border);border-radius:var(--m2-r-md);padding:10px 14px;font-size:12.5px"></div>
+          <div class="m2-formactions">
+            <button class="m2-btn m2-btn--primary" onclick="upgradeNow()">⚡ Cập nhật trực tuyến từ GitHub và khởi động lại</button>
+            <a class="m2-btn m2-btn--ghost" href="https://github.com/lionels-kayden/muse2api-lio/commits/main" target="_blank" rel="noopener">Xem toàn bộ lịch sử commit ↗</a>
+          </div>
+          <div class="m2-hint" style="margin-top:12px">
+            Nâng cấp trực tuyến tự động giữ lại khoá <code>.env</code>, pool tài khoản trong <code>data/</code> và toàn bộ tệp media đã tạo.
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer style="max-width:1360px;margin:0 auto var(--m2-sp-8);padding:12px var(--m2-sp-10);color:var(--m2-text-3);font-size:12px;border-top:1px solid var(--m2-border)">
+      <span>Kho mã nguồn mở: <a href="https://github.com/lionels-kayden/muse2api-lio" target="_blank" rel="noopener">GitHub · muse2api</a></span>
+      <span style="margin:0 10px">·</span>
+      <span>Cộng đồng công nhận và liên kết hữu nghị: <a href="https://linux.do/" target="_blank" rel="noopener" style="font-weight:600">Cộng đồng LINUX DO (https://linux.do/)</a></span>
+      <span style="margin:0 10px">·</span>
+      <a href="/admin/classic">⇄ Giao diện cổ điển</a>
+    </footer>
+  </div>
+</div>
+
+<div id="m2Toasts"></div>
+
+<div class="m2-modal" id="m2Modal">
+  <div class="m2-modal__panel" role="dialog" aria-modal="true">
+    <h3 class="m2-modal__title" id="m2ModalTitle">Xác nhận</h3>
+    <div class="m2-modal__desc" id="m2ModalDesc"></div>
+    <div id="m2ModalBody"></div>
+    <div class="m2-modal__foot">
+      <button class="m2-btn m2-btn--ghost" id="m2ModalCancel">Huỷ</button>
+      <button class="m2-btn m2-btn--primary" id="m2ModalOk">Xác nhận</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =====================================================================
+   muse2api admin v2 — tầng điều khiển
+   Tái dùng nguyên văn các hàm gọi API của bản gốc: api(), esc(),
+   fmtBytes(), fmtTime(), ago(), maskKey(), buildCmd(), quotaBadge(),
+   expiryBadge(), fillExtFields(), copyText(). Chỉ đổi cách dựng DOM.
+   ===================================================================== */
+
+/* ---------- 0. Hằng số, chủ đề, trạng thái ---------- */
+const $ = id => document.getElementById(id);
+const KEY_STORE = 'muse2api_key';
+const THEME_STORE = 'muse2api_theme';
+
+let KEY = localStorage.getItem(KEY_STORE) || new URLSearchParams(location.search).get('key') || '';
+let authOK = null;
+let realKey = '';
+let keyShown = false;
+let accounts = [];
+let _allMedia = [];
+let _selectedMedia = new Set();
+let _notifiedSha = localStorage.getItem('muse2api_notified_sha') || '';
+let _dismissedSha = localStorage.getItem('muse2api_dismissed_sha') || '';
+let _lastRepoStatus = null;
+let _paused = false;
+
+/* ---------- Chủ đề sáng / tối ---------- */
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t === 'light' ? 'light' : 'dark');
+  const b = $('btnTheme');
+  if (b) b.textContent = t === 'light' ? '☀️' : '🌗';
+}
+function toggleTheme(){
+  const next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+  localStorage.setItem(THEME_STORE, next);
+  applyTheme(next);
+}
+applyTheme(localStorage.getItem(THEME_STORE) || 'dark');
+
+/* ---------- Sidebar di động ---------- */
+function openSidebar(){ $('m2Sidebar').classList.add('is-open'); $('m2Scrim').classList.add('is-show'); }
+function closeSidebar(){ $('m2Sidebar').classList.remove('is-open'); $('m2Scrim').classList.remove('is-show'); }
+
+/* ---------- Điều hướng theo trang (thay cho tab ngang) ---------- */
+function goPage(name){
+  document.querySelectorAll('.m2-navitem').forEach(b => b.classList.toggle('is-active', b.dataset.page === name));
+  document.querySelectorAll('.m2-page').forEach(s => s.classList.toggle('is-active', s.dataset.page === name));
+  closeSidebar();
+  try { history.replaceState(null, '', '#' + name); } catch(_){}
+  if (name === 'tasks') loadTasks();
+  if (name === 'media') loadMedia();
+  if (name === 'cookie') $('cmdText').textContent = buildCmd($('inBase').value);
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+document.querySelectorAll('.m2-navitem').forEach(b => { b.onclick = () => goPage(b.dataset.page); });
+
+/* ---------- Tự động làm mới: bật / tạm dừng ---------- */
+function toggleLive(){
+  _paused = !_paused;
+  $('live').classList.toggle('is-paused', _paused);
+  $('liveTxt').textContent = _paused ? 'Đã tạm dừng' : 'Tự động làm mới';
+  toast(_paused ? 'Đã tạm dừng tự động làm mới' : 'Đã bật lại tự động làm mới', 'warn');
+}
+
+/* ---------- 1. Trạng thái đăng nhập ---------- */
+function setAuth(ok){
+  if (authOK === ok) return;
+  authOK = ok;
+  $('authBanner').classList.toggle('is-show', !ok);
+  $('keyBox').classList.toggle('is-ok', ok);
+  $('keyBox').classList.toggle('is-miss', !ok);
+  $('keyLbl').textContent = ok ? '✓ Đã đăng nhập' : 'Bắt buộc điền API Key';
+}
+
+function saveKey(){
+  KEY = $('key').value.trim();
+  localStorage.setItem(KEY_STORE, KEY);
+  if (!KEY){ setAuth(false); toast('Đã xoá API Key', 'warn'); return; }
+  toast('API Key đã được lưu vào trình duyệt máy này, lần sau mở sẽ tự động dùng', 'ok');
+  authOK = null;
+  refreshAll();
+}
+
+/* ---------- Toast ---------- */
+function toast(msg, kind){
+  const d = document.createElement('div');
+  d.className = 'm2-toast ' + (kind ? 'is-' + kind : '');
+  d.textContent = msg;
+  $('m2Toasts').appendChild(d);
+  setTimeout(() => { d.style.opacity = '0'; d.style.transition = '.3s'; }, 3600);
+  setTimeout(() => d.remove(), 4000);
+}
+
+/* ---------- 2. Tầng truyền tải ---------- */
+async function api(path, opts){
+  opts = opts || {};
+  opts.headers = Object.assign({'Content-Type':'application/json'}, opts.headers || {});
+  if (KEY) opts.headers['Authorization'] = 'Bearer ' + KEY;
+  const r = await fetch(path, opts);
+  const txt = await r.text();
+  let data; try { data = JSON.parse(txt); } catch(e){ data = null; }
+  if (r.status === 401){
+    setAuth(false);
+    throw new Error('API Key chưa điền hoặc điền sai');
+  }
+  setAuth(true);
+  if (!r.ok) {
+    let msg = '';
+    if (data) {
+      if (typeof data.detail === 'string') msg = data.detail;
+      else if (typeof data.message === 'string') msg = data.message;
+      else if (data.error) msg = typeof data.error === 'string' ? data.error : (data.error.message || JSON.stringify(data.error));
+    }
+    if (!msg && txt) {
+      if (txt.includes('502 Bad Gateway') || txt.includes('nginx')) {
+        msg = 'Reverse proxy quá thời gian (Nginx 502 Bad Gateway, thường là do Nginx proxy_read_timeout mặc định 60s quá ngắn, hãy tăng timeout của reverse proxy lên 600s)';
+      } else {
+        msg = txt.slice(0, 150);
+      }
+    }
+    throw new Error(msg || ('HTTP ' + r.status));
+  }
+  return data;
+}
+
+/* ---------- 3. Định dạng ---------- */
+function esc(s){
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function fmtBytes(n){
+  if (!n && n !== 0) return '—';
+  if (n < 1024) return n + ' B';
+  if (n < 1048576) return (n/1024).toFixed(1) + ' KB';
+  return (n/1048576).toFixed(2) + ' MB';
+}
+function fmtTime(ts){
+  if (!ts) return '—';
+  const d = new Date(ts * 1000);
+  const p = n => String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+}
+function ago(ts){
+  if (!ts) return 'Chưa từng';
+  const s = Math.max(0, Math.floor(Date.now()/1000) - ts);
+  if (s < 60) return s + ' giây trước';
+  if (s < 3600) return Math.floor(s/60) + ' phút trước';
+  if (s < 86400) return Math.floor(s/3600) + ' giờ trước';
+  return Math.floor(s/86400) + ' ngày trước';
+}
+function maskKey(k){
+  if (!k) return '';
+  return k.length <= 14 ? k : k.slice(0, 8) + '••••••••••••••' + k.slice(-4);
+}
+
+/* ---------- 4. Sao chép ---------- */
+function cp(el){
+  const t = el.parentElement.innerText.replace(/^Sao chép\n?/, '');
+  navigator.clipboard.writeText(t).then(() => toast('Đã sao chép', 'ok'))
+    .catch(() => copyText(t));
+}
+async function copyText(v){
+  if (!v) return toast('Không có nội dung để sao chép', 'warn');
+  try{
+    await navigator.clipboard.writeText(v);
+    toast('Đã sao chép vào clipboard', 'ok');
+  }catch(e){
+    const ta = document.createElement('textarea');
+    ta.value = v; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); toast('Đã sao chép vào clipboard', 'ok'); }
+    catch(_){ toast('Sao chép thất bại, hãy tự bôi đen rồi sao chép', 'warn'); }
+    ta.remove();
+  }
+}
+async function copyEl(id){ await copyText($(id).value); }
+async function copyKey(){ await copyText(realKey); }
+async function copyCmd(){ await copyText($('cmdText').textContent); }
+async function copyExKey(){ await copyText($('exKey').value); }
+
+/* ---------- 5. Hộp thoại trong trang (thay prompt / confirm) ---------- */
+let _modalResolve = null;
+
+function _modalClose(val){
+  $('m2Modal').classList.remove('is-open');
+  const r = _modalResolve; _modalResolve = null;
+  if (r) r(val);
+}
+
+function openModal(opts){
+  return new Promise(resolve => {
+    _modalResolve = resolve;
+    $('m2ModalTitle').textContent = opts.title || 'Xác nhận';
+    $('m2ModalDesc').innerHTML = opts.desc || '';
+    const body = $('m2ModalBody');
+    body.innerHTML = opts.body || '';
+    const ok = $('m2ModalOk');
+    ok.textContent = opts.confirmLabel || 'Xác nhận';
+    ok.className = 'm2-btn ' + (opts.danger ? 'm2-btn--danger-solid' : 'm2-btn--primary');
+    $('m2ModalCancel').textContent = opts.cancelLabel || 'Huỷ';
+    $('m2ModalCancel').style.display = opts.hideCancel ? 'none' : '';
+    const input = body.querySelector('input,textarea');
+    if (input){
+      input.focus();
+      if (input.select) input.select();
+      const check = () => {
+        if (!opts.requireText) return;
+        ok.disabled = !input.value.trim();
+      };
+      input.oninput = check;
+      check();
+      input.onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey && input.tagName !== 'TEXTAREA'){ e.preventDefault(); ok.click(); } };
+    }
+    $('m2Modal').classList.add('is-open');
+  });
+}
+
+function closeModal(){ _modalClose(null); }
+
+function confirmDialog(opts){
+  return openModal({
+    title: opts.title, desc: opts.desc, danger: opts.danger,
+    confirmLabel: opts.confirmLabel || 'Xác nhận', cancelLabel: opts.cancelLabel || 'Huỷ',
+  }).then(v => v === true);
+}
+
+function promptDialog(opts){
+  const multiline = !!opts.multiline;
+  const ctl = multiline
+    ? `<textarea class="m2-textarea" id="m2ModalInput" rows="4" placeholder="${esc(opts.placeholder || '')}"></textarea>`
+    : `<input class="m2-input" id="m2ModalInput" type="text" value="${esc(opts.value || '')}" placeholder="${esc(opts.placeholder || '')}">`;
+  return openModal({
+    title: opts.title, desc: opts.desc, body: `<div class="m2-field">${ctl}</div>`,
+    confirmLabel: opts.confirmLabel || 'Lưu', danger: !!opts.danger,
+    requireText: opts.requireText !== false,
+  }).then(v => {
+    if (v !== true) return null;
+    const el = $('m2ModalInput');
+    return el ? el.value : null;
+  });
+}
+
+/* ---------- 6. Thông tin tích hợp / API Key ---------- */
+async function loadApikey(){
+  try{
+    const d = await api('/admin/apikey');
+    realKey = d.api_key || '';
+    $('inBase').value = d.base_url || (location.origin + '/v1');
+    renderKey();
+    fillExtFields(d.base_url);
+    $('cmdText').textContent = buildCmd(d.base_url);
+  }catch(e){
+    $('inBase').value = location.origin + '/v1';
+    fillExtFields(location.origin);
+    $('cmdText').textContent = '(Hãy điền API Key ở thanh trên cùng trước, chỗ này sẽ tạo lệnh đầy đủ)';
+  }
+}
+
+function renderKey(){
+  $('inKey').value = keyShown ? realKey : maskKey(realKey);
+  $('keyEye').textContent = keyShown ? 'Ẩn' : 'Hiện';
+}
+function toggleKey(){ keyShown = !keyShown; renderKey(); }
+
+function buildCmd(baseUrl){
+  const root = (baseUrl || location.origin).replace(/\/v1\/?$/, '').replace(/\/+$/, '');
+  return `python get_muse_cookie.py --base ${root} --key ${realKey || 'API_KEY_cua_ban'} --label muse-01`;
+}
+
+function fillExtFields(baseUrl){
+  const root = (baseUrl || location.origin).replace(/\/v1\/?$/i, '').replace(/\/+$/, '');
+  if ($('exBase')) $('exBase').value = root;
+  if ($('exKey')) $('exKey').value = realKey || '';
+}
+async function loadExtFiles(){
+  const el = $('extFiles');
+  if (!el) return;
+  el.textContent = 'Đang đọc…';
+  try{
+    const d = await api('/admin/extension/files');
+    const files = d.files || [];
+    el.innerHTML = files.length
+      ? `Gồm ${files.length} tệp: ` + files.map(f => `<code>${esc(f)}</code>`).join(', ')
+      : '(Thư mục tiện ích trống, hãy kiểm tra việc triển khai)';
+  }catch(e){
+    el.textContent = 'Đọc thất bại: ' + e.message;
+  }
+}
+
+async function rotateKey(){
+  const ok = await confirmDialog({
+    title: 'Tạo lại API Key?',
+    desc: 'Key cũ sẽ hết hiệu lực ngay lập tức. Các dự án hạ nguồn đã tích hợp bắt buộc phải cập nhật đồng bộ, nếu không sẽ báo 401.',
+    confirmLabel: 'Tạo lại Key', danger: true,
+  });
+  if (!ok) return;
+  try{
+    const d = await api('/admin/apikey/rotate', {method:'POST'});
+    realKey = d.api_key;
+    KEY = d.api_key;
+    localStorage.setItem(KEY_STORE, KEY);
+    $('key').value = KEY;
+    keyShown = true; renderKey();
+    $('cmdText').textContent = buildCmd($('inBase').value);
+    toast('Đã tạo Key mới và có hiệu lực ngay, trang này đã tự động cập nhật', 'ok');
+    await openModal({
+      title: 'API Key mới đã có hiệu lực',
+      desc: 'Key cũ đã hết hiệu lực. Hãy sao chép Key mới và cập nhật vào mọi dự án hạ nguồn ngay bây giờ.',
+      body: `<div class="m2-field"><label class="m2-label">API Key mới</label>
+             <div class="m2-inputgroup"><input class="m2-input" id="m2NewKey" type="text" readonly value="${esc(realKey)}">
+             <button class="m2-btn m2-btn--ghost m2-btn--sm" id="m2NewKeyCp">Sao chép</button></div></div>`,
+      confirmLabel: 'Đã hiểu', cancelLabel: 'Đóng', hideCancel: true,
+    });
+    const cpBtn = $('m2NewKeyCp');
+    if (cpBtn) cpBtn.onclick = () => copyText(realKey);
+  }catch(e){ toast('Tạo thất bại: ' + e.message, 'bad'); }
+}
+
+/* ---------- 7. Huy hiệu hạn mức / hiệu lực ---------- */
+function quotaBadge(a){
+  const q = a.quota;
+  if (!q || !q.found){
+    return '<span class="m2-badge m2-badge--mute" title="Chưa tra bao giờ. Bấm “Hạn mức” trong “Thao tác” để tra theo thời gian thực">Chưa tra</span>';
+  }
+  const pct = (q.weekly_used_pct != null) ? q.weekly_used_pct : null;
+  const cls = pct == null ? 'info' : pct < 50 ? 'ok' : pct < 80 ? 'warn' : 'bad';
+  const plan = (q.plan || '').replace(/\s*plan\s*$/i, '') || '—';
+  let title = `Gói: ${q.plan || '?'}`;
+  if (q.weekly_reset) title += `\nĐặt lại hạn mức tuần: ${q.weekly_reset}`;
+  if (pct != null) title += `\nDùng theo tuần: đã dùng ${pct}%`;
+  if (q.extra_left) title += `\nToken bổ sung: còn ${q.extra_left} (đã dùng ${q.extra_used_pct ?? '?'}%)`;
+  if (q.checked_at) title += `\nThời điểm tra: ${fmtTime(q.checked_at)}`;
+  if (q.checked_at && Date.now()/1000 - q.checked_at > 3600) title += '\nDữ liệu hạn mức đã quá 1 giờ, cần tra lại';
+  const main = pct != null ? `${plan} · đã dùng ${pct}%` : plan;
+  const age = q.checked_at ? `<div class="m2-mono" style="font-size:10px;margin-top:2px">tra ${ago(q.checked_at)}</div>` : '';
+  const sub = (q.extra_left ? `<div class="m2-mono" style="font-size:11px;margin-top:2px">+${esc(q.extra_left)}</div>` : '') + age;
+  return `<span class="m2-badge m2-badge--${cls}" title="${esc(title)}">${esc(main)}</span>${sub}`;
+}
+
+async function queryQuota(aid, btn){
+  if (btn){ btn.disabled = true; btn.textContent = 'Đang tra…'; }
+  try{
+    const q = await api(`/admin/accounts/${aid}/quota`, {method:'POST'});
+    if (q.found){
+      const extra = q.extra_left ? `, bổ sung còn ${q.extra_left}` : '';
+      toast(`Hạn mức: ${q.plan || '?'}, dùng theo tuần đã dùng ${q.weekly_used_pct ?? '?'}%${extra}`, 'ok');
+    }else{
+      toast('Không đọc được dữ liệu hạn mức trong bảng cài đặt (có thể cấu trúc trang đã thay đổi)', 'warn');
+    }
+    loadPool();
+  }catch(e){
+    toast('Tra hạn mức thất bại: ' + e.message, 'bad');
+    if (btn){ btn.disabled = false; btn.textContent = 'Hạn mức'; }
+  }
+}
+
+function expiryBadge(a){
+  const ts = a && a.expires_at;
+  if (!ts) return '<span class="m2-badge m2-badge--mute" title="Chưa ghi nhận hiệu lực">Không rõ</span>';
+  const est = a.expires_estimated
+    ? '(suy ra theo tuổi thọ khoảng 2 ngày của hatch_vml, chưa lấy được expires chính xác)'
+    : '(thời điểm hết hạn đo thực tế của hatch_vml)';
+  const left = ts - Math.floor(Date.now() / 1000);
+  if (left <= 0) return `<span class="m2-badge m2-badge--bad" title="Đã hết hạn lúc ${fmtTime(ts)} ${est}">Đã hết hạn</span>`;
+  const days = left / 86400;
+  const txt = days >= 1
+    ? `còn ${days >= 10 ? Math.round(days) : days.toFixed(1)} ngày`
+    : `còn ${Math.max(1, Math.floor(left / 3600))} giờ`;
+  const cls = days < 1 ? 'bad' : days < 3 ? 'warn' : 'ok';
+  return `<span class="m2-badge m2-badge--${cls}" title="Thời điểm hết hạn: ${fmtTime(ts)} ${est}">${txt}</span>`;
+}
+
+/* ---------- 8. Pool tài khoản ---------- */
+async function loadPool(){
+  try{
+    const d = await api('/admin/accounts');
+    accounts = d.accounts || [];
+    const st = d.stats || {};
+    $('sTotal').textContent = st.total ?? accounts.length;
+    $('sOk').textContent    = st.healthy ?? 0;
+    $('sBad').textContent   = st.error ?? 0;
+    $('sDis').textContent   = st.disabled ?? 0;
+    $('poolCount').textContent = accounts.length;
+    $('navAccCount').textContent = accounts.length;
+    $('pAcc').className = 'm2-pill ' + (accounts.length ? 'is-on' : 'is-off');
+    $('pAcc').innerHTML = `<span class="m2-led"></span>Tài khoản <b>${accounts.length}</b>`;
+
+    const now = Math.floor(Date.now() / 1000);
+    const soon = accounts.filter(a => a.enabled && a.expires_at && a.expires_at - now < 12 * 3600);
+    const bar = $('expWarn');
+    if (soon.length){
+      const dead = soon.filter(a => a.expires_at <= now).length;
+      const names = soon.slice(0, 4).map(a => esc(a.label)).join(', ') +
+                    (soon.length > 4 ? ` v.v. ${soon.length} cái` : '');
+      $('expWarnText').innerHTML = dead
+        ? `⚠️ <b>${dead} tài khoản đã hết hạn</b>, ${soon.length - dead ? `còn ${soon.length - dead} cái sắp hết hạn (${names})` : names}. Tài khoản hết hạn không tạo được, hãy đăng nhập lại một lần (khoảng 30 giây).`
+        : `⏳ <b>${names}</b> có hiệu lực dưới 12 giờ. Phiên muse.ai hết hạn sau khoảng 2 ngày và không được kéo dài nhờ việc dùng, khuyến nghị đăng nhập lại ngay bây giờ, tránh việc tạo bị lỗi đột ngột.`;
+      bar.classList.add('is-show');
+    }else{
+      bar.classList.remove('is-show');
+    }
+
+    if (!accounts.length){
+      $('poolBody').innerHTML = '<tr><td colspan="10" class="m2-empty">Chưa có tài khoản. Vào trang “Lấy Cookie” và làm theo ba bước để nhập một cái</td></tr>';
+      return;
+    }
+    $('poolBody').innerHTML = accounts.map(a => {
+      const ok = a.ok;
+      const badge = !a.enabled ? '<span class="m2-badge m2-badge--mute">Đã vô hiệu</span>'
+                  : ok === true  ? '<span class="m2-badge m2-badge--ok">● Khả dụng</span>'
+                  : ok === false ? '<span class="m2-badge m2-badge--bad">● Bất thường</span>'
+                  : '<span class="m2-badge m2-badge--warn">○ Chưa kiểm tra</span>';
+      const miss = a.essential_ok ? '' : ' <span class="m2-badge m2-badge--bad" title="Thiếu cookie cốt lõi, không thể tạo">Thiếu cốt lõi</span>';
+      return `<tr>
+        <td><b>${esc(a.label)}</b></td>
+        <td class="m2-mono">${esc(a.id)}</td>
+        <td>${badge}${miss}</td>
+        <td>${expiryBadge(a)}</td>
+        <td>${quotaBadge(a)}</td>
+        <td>${a.enabled ? '<span class="m2-badge m2-badge--ok">Bật</span>' : '<span class="m2-badge m2-badge--mute">Tắt</span>'}</td>
+        <td class="m2-mono">${a.cookie_count}</td>
+        <td class="m2-mono" title="${a.last_used ? fmtTime(a.last_used) : ''}">${ago(a.last_used)}</td>
+        <td class="m2-mono m2-ellip" title="${esc(a.note||'')}">${esc(a.note || '—')}</td>
+        <td><div class="m2-acts">
+          <button class="m2-btn m2-btn--ghost m2-btn--sm" onclick="testAcc('${a.id}')">Kiểm thử</button>
+          <button class="m2-btn m2-btn--ghost m2-btn--sm" onclick="keepaliveOne('${a.id}')" title="Làm mới token phiên và hiệu lực một cách im lặng">Giữ sống</button>
+          <button class="m2-btn m2-btn--ghost m2-btn--sm" onclick="queryQuota('${a.id}', this)">Hạn mức</button>
+          <button class="m2-btn m2-btn--ghost m2-btn--sm" onclick="toggleAcc('${a.id}', ${!a.enabled})">${a.enabled ? 'Vô hiệu' : 'Bật'}</button>
+          <button class="m2-btn m2-btn--ghost m2-btn--sm" onclick="renameAcc('${a.id}','${esc(a.label)}')">Đổi tên</button>
+          <button class="m2-btn m2-btn--ghost m2-btn--sm" onclick="updateCookies('${a.id}')">Cập nhật Cookie</button>
+          <button class="m2-btn m2-btn--danger m2-btn--sm" onclick="delAcc('${a.id}','${esc(a.label)}')">Xoá</button>
+        </div></td>
+      </tr>`;
+    }).join('');
+  }catch(e){
+    $('poolBody').innerHTML = authOK === false
+      ? '<tr><td colspan="10" class="m2-empty">🔑 Hãy điền API Key ở thanh trên cùng và bấm “Lưu” trước</td></tr>'
+      : `<tr><td colspan="10" class="m2-empty">Tải thất bại: ${esc(e.message)}</td></tr>`;
+  }
+}
+
+function clearNewCookie(){ $('newCookie').value = ''; $('newLabel').value = ''; }
+
+async function addAccount(fromManual){
+  const labelEl = $(fromManual ? 'mLabel' : 'newLabel');
+  const ckEl    = $(fromManual ? 'mCookie' : 'newCookie');
+  const label = labelEl.value.trim();
+  const raw = ckEl.value.trim();
+  if (!raw) return toast('Hãy dán Cookie trước', 'warn');
+  const lines = raw.split('\n').map(s => s.trim()).filter(Boolean);
+  const body = (lines.length > 1) ? {batch: raw} : {label: label, cookie_header: raw};
+  try{
+    const r = await api('/admin/accounts', {method:'POST', body: JSON.stringify(body)});
+    if (r.warning) toast(r.warning, 'warn');
+    else toast(`Đã nhập thành công ${r.count} tài khoản`, 'ok');
+    ckEl.value = ''; labelEl.value = '';
+    loadPool();
+  }catch(e){ toast('Nhập thất bại: ' + e.message, 'bad'); }
+}
+
+async function testAcc(id){
+  toast('Đang thực sự mở muse.ai để xác minh phiên…');
+  try{
+    const r = await api(`/admin/accounts/${id}/test`, {method:'POST'});
+    const quotaStatus = r.quota_error ? `; đọc hạn mức thất bại: ${r.quota_error}` : r.quota ? `; hạn mức đã làm mới: ${r.quota.weekly_used_pct ?? '?'}%` : '';
+    toast((r.ok ? '✓ ' : '✗ ') + r.message + quotaStatus, r.ok && !r.quota_error ? 'ok' : 'warn');
+    loadPool();
+  }catch(e){ toast('Kiểm thử thất bại: ' + e.message, 'bad'); }
+}
+
+async function keepaliveOne(id){
+  toast('Đang thực hiện gia hạn phiên im lặng cho tài khoản này…');
+  try{
+    const r = await api(`/admin/accounts/${id}/keepalive`, {method:'POST'});
+    toast(r.ok ? '✓ Giữ sống tài khoản thành công, thời điểm hết hạn mới đã cập nhật' : `✗ Giữ sống thất bại: ${r.error||'lỗi không rõ'}`, r.ok ? 'ok' : 'bad');
+    loadPool();
+  }catch(e){ toast('Giữ sống thất bại: ' + e.message, 'bad'); }
+}
+
+async function keepaliveAll(){
+  const btn = $('btnKeepaliveAll');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="m2-spin"></span>Đang giữ sống…'; }
+  toast('Đang đánh thức trình duyệt headless, thực hiện gia hạn im lặng và giữ sống cho pool tài khoản…', 'warn');
+  try{
+    const r = await api('/admin/accounts/keepalive?force=true', {method:'POST'});
+    if (r.status === 'busy') {
+      toast('Tác vụ giữ sống đang chạy ở chế độ nền, vui lòng chờ xem', 'warn');
+    } else {
+      toast(`✓ Giữ sống thành công ${r.refreshed_count || 0} tài khoản, bỏ qua ${r.skipped_count || 0} cái`, 'ok');
+    }
+    loadPool();
+  }catch(e){ toast('Thực hiện giữ sống thất bại: ' + e.message, 'bad'); }
+  finally{
+    if (btn) { btn.disabled = false; btn.textContent = '⚡ Giữ sống tất cả'; }
+  }
+}
+
+async function toggleAcc(id, enabled){
+  try{
+    await api(`/admin/accounts/${id}`, {method:'PATCH', body: JSON.stringify({enabled})});
+    toast(enabled ? 'Đã bật' : 'Đã vô hiệu', 'ok'); loadPool();
+  }catch(e){ toast('Thao tác thất bại: ' + e.message, 'bad'); }
+}
+
+async function renameAcc(id, old){
+  const label = await promptDialog({
+    title: 'Đổi nhãn tài khoản',
+    desc: 'Nhãn chỉ dùng để bạn dễ nhận biết trong pool, không ảnh hưởng tới cookie.',
+    value: old, placeholder: 'ví dụ muse-main', confirmLabel: 'Lưu nhãn',
+  });
+  if (label === null || !label.trim()) return;
+  try{
+    await api(`/admin/accounts/${id}`, {method:'PATCH', body: JSON.stringify({label: label.trim()})});
+    toast('Nhãn đã cập nhật', 'ok'); loadPool();
+  }catch(e){ toast('Đổi tên thất bại: ' + e.message, 'bad'); }
+}
+
+async function updateCookies(id){
+  const v = await promptDialog({
+    title: 'Cập nhật Cookie',
+    desc: 'Dán chuỗi cookie mới nhất của tài khoản này (lấy từ tiện ích hoặc từ bảng Network).',
+    multiline: true, placeholder: 'hatch_sess=...; hatch_gw=...; hatch_vml=...', confirmLabel: 'Cập nhật',
+  });
+  if (!v || !v.trim()) return;
+  try{
+    const r = await api(`/admin/accounts/${id}/cookies`, {method:'POST', body: JSON.stringify({cookie_header: v.trim()})});
+    toast(`Cookie đã cập nhật (${r.cookie_count} mục)`, 'ok'); loadPool();
+  }catch(e){ toast('Cập nhật thất bại: ' + e.message, 'bad'); }
+}
+
+async function delAcc(id, label){
+  const ok = await confirmDialog({
+    title: 'Xoá tài khoản?',
+    desc: `Xác nhận xoá tài khoản “${esc(label)}”? Thao tác này không thể hoàn tác.`,
+    confirmLabel: 'Xoá tài khoản', danger: true,
+  });
+  if (!ok) return;
+  try{
+    await api(`/admin/accounts/${id}`, {method:'DELETE'});
+    toast('Đã xoá', 'ok'); loadPool();
+  }catch(e){ toast('Xoá thất bại: ' + e.message, 'bad'); }
+}
+
+/* ---------- 9. Lịch sử tác vụ ---------- */
+async function loadTasks(){
+  try{
+    const d = await api('/admin/tasks?limit=60');
+    const ts = d.tasks || [];
+    $('taskCount').textContent = ts.length;
+    if (!ts.length){ $('taskBody').innerHTML = '<tr><td colspan="8" class="m2-empty">Chưa có lịch sử tác vụ</td></tr>'; return; }
+    $('taskBody').innerHTML = ts.map(t => {
+      const cls = (t.status === 'succeeded' || t.status === 'completed') ? 'ok' : t.status === 'failed' ? 'bad'
+                : t.status === 'processing' ? 'info' : 'warn';
+      let out = '—';
+      if (t.result && t.result.url) out = `<a href="${esc(t.result.url)}" target="_blank" rel="noopener">Xem kết quả</a> <span class="m2-mono">${fmtBytes(t.result.bytes)}</span>`;
+      else if (t.error) out = `<span style="color:var(--m2-danger)">${esc(t.error).slice(0,120)}</span>`;
+      return `<tr>
+        <td class="m2-mono">${esc(t.id)}</td>
+        <td>${t.kind === 'video' ? '<span class="m2-badge m2-badge--info">Video</span>' : '<span class="m2-badge m2-badge--info">Ảnh</span>'}</td>
+        <td><span class="m2-ellip" title="${esc(t.prompt)}">${esc(t.prompt)}</span></td>
+        <td><span class="m2-badge m2-badge--${cls}">${esc(t.status)}</span></td>
+        <td class="m2-mono">${t.elapsed ? t.elapsed + 's' : '—'}</td>
+        <td class="m2-mono">${fmtTime(t.created_at)}</td>
+        <td>${out}</td>
+        <td><button class="m2-btn m2-btn--danger m2-btn--sm" onclick="delTask('${t.id}')">Xoá</button></td>
+      </tr>`;
+    }).join('');
+  }catch(e){
+    $('taskBody').innerHTML = `<tr><td colspan="8" class="m2-empty">Tải thất bại: ${esc(e.message)}</td></tr>`;
+  }
+}
+
+async function delTask(id){
+  const ok = await confirmDialog({
+    title: 'Xoá bản ghi tác vụ?',
+    desc: `Xác nhận xoá bản ghi tác vụ <code>${esc(id)}</code>? Tệp media đã tạo (nếu có) vẫn được giữ lại.`,
+    confirmLabel: 'Xoá bản ghi', danger: true,
+  });
+  if (!ok) return;
+  try{ await api('/admin/tasks/' + id, {method:'DELETE'}); toast('Đã xoá bản ghi', 'ok'); loadTasks(); }
+  catch(e){ toast('Xoá thất bại: ' + e.message, 'bad'); }
+}
+
+async function clearTasks(){
+  const ok = await confirmDialog({
+    title: 'Xoá toàn bộ lịch sử tác vụ?',
+    desc: 'Xác nhận xoá toàn bộ lịch sử tác vụ? (các tệp media đã tạo sẽ không bị xoá)',
+    confirmLabel: 'Xoá toàn bộ', danger: true,
+  });
+  if (!ok) return;
+  try{
+    const r = await api('/admin/tasks/clear', {method:'POST', body: JSON.stringify({keep: 0})});
+    toast(`Đã xoá ${r.removed} bản ghi`, 'ok'); loadTasks();
+  }catch(e){ toast('Xoá thất bại: ' + e.message, 'bad'); }
+}
+
+/* ---------- 10. Thư viện media ---------- */
+function updateMediaSelectionUI(){
+  const count = _selectedMedia.size;
+  const total = _allMedia.length;
+  const btnSelAll = $('btnSelectAllMedia');
+  const btnDel = $('btnDelSelectedMedia');
+  const countEl = $('selMediaCount');
+
+  if (countEl) countEl.textContent = count;
+  if (btnDel) btnDel.style.display = count > 0 ? 'inline-flex' : 'none';
+  if (btnSelAll) btnSelAll.textContent = (total > 0 && count === total) ? 'Bỏ chọn tất cả' : 'Chọn tất cả';
+
+  document.querySelectorAll('.m2-tile[data-name]').forEach(el => {
+    const name = el.getAttribute('data-name');
+    const chk = el.querySelector('.m2-tile__check input');
+    const isSel = _selectedMedia.has(name);
+    if (chk) chk.checked = isSel;
+    el.classList.toggle('is-selected', isSel);
+  });
+}
+
+function toggleMediaSelect(name){
+  if (_selectedMedia.has(name)) _selectedMedia.delete(name);
+  else _selectedMedia.add(name);
+  updateMediaSelectionUI();
+}
+
+function toggleSelectAllMedia(){
+  if (!_allMedia.length) return;
+  if (_selectedMedia.size === _allMedia.length) _selectedMedia.clear();
+  else _selectedMedia = new Set(_allMedia.map(m => m.name));
+  updateMediaSelectionUI();
+}
+
+async function delSingleMedia(name){
+  const ok = await confirmDialog({
+    title: 'Xoá tệp media?',
+    desc: `Xác nhận xoá tệp media “${esc(name)}”? Thao tác này không thể hoàn tác.`,
+    confirmLabel: 'Xoá tệp', danger: true,
+  });
+  if (!ok) return;
+  try{
+    const r = await api('/admin/media/delete', {method:'POST', body: JSON.stringify({names: [name]})});
+    if (r.removed > 0) { toast('Xoá thành công', 'ok'); _selectedMedia.delete(name); }
+    else toast('Tệp không tồn tại hoặc đã bị xoá', 'warn');
+    loadMedia();
+  }catch(e){ toast('Xoá thất bại: ' + e.message, 'bad'); }
+}
+
+async function delSelectedMedia(){
+  const count = _selectedMedia.size;
+  if (!count) return toast('Hãy chọn tệp media cần xoá trước', 'warn');
+  const names = Array.from(_selectedMedia);
+  const preview = names.slice(0, 5).map(n => `<code>${esc(n)}</code>`).join(', ') + (names.length > 5 ? ` … và ${names.length - 5} tệp khác` : '');
+  const ok = await confirmDialog({
+    title: `Xoá ${count} tệp media?`,
+    desc: `Xác nhận xoá vĩnh viễn ${count} tệp media đã chọn? Thao tác này không thể hoàn tác.<br><br>${preview}`,
+    confirmLabel: `Xoá ${count} tệp`, danger: true,
+  });
+  if (!ok) return;
+
+  const btn = $('btnDelSelectedMedia');
+  if (btn) { btn.disabled = true; btn.textContent = 'Đang xoá…'; }
+  try{
+    const r = await api('/admin/media/delete', {method:'POST', body: JSON.stringify({names})});
+    toast(`Đã xoá thành công ${r.removed || 0} tệp`, 'ok');
+    _selectedMedia.clear();
+    loadMedia();
+  }catch(e){ toast('Xoá hàng loạt thất bại: ' + e.message, 'bad'); }
+  finally{ if (btn) btn.disabled = false; }
+}
+
+async function loadMedia(){
+  try{
+    const d = await api('/admin/media');
+    const ms = d.media || [];
+    _allMedia = ms;
+    const validNames = new Set(ms.map(m => m.name));
+    for (const name of Array.from(_selectedMedia)) {
+      if (!validNames.has(name)) _selectedMedia.delete(name);
+    }
+    $('mediaCount').textContent = ms.length;
+    $('sMedia').textContent = ms.length;
+    if (!ms.length){
+      $('mediaGrid').innerHTML = '<div class="m2-empty">Chưa tạo tệp media nào</div>';
+      updateMediaSelectionUI();
+      return;
+    }
+    $('mediaGrid').innerHTML = ms.map(m => {
+      const isSel = _selectedMedia.has(m.name);
+      return `
+      <div class="m2-tile ${isSel ? 'is-selected' : ''}" data-name="${esc(m.name)}">
+        <label class="m2-tile__check" title="Tích để thao tác hàng loạt" onclick="event.stopPropagation()">
+          <input type="checkbox" ${isSel ? 'checked' : ''} onchange="toggleMediaSelect('${esc(m.name)}')">
+        </label>
+        <div class="m2-tile__thumb">${m.kind === 'video'
+          ? `<video src="${esc(m.url)}" muted playsinline preload="metadata"></video>`
+          : `<img src="${esc(m.url)}" loading="lazy" alt="">`}</div>
+        <div class="m2-tile__meta">
+          <div class="m2-tile__nm" title="${esc(m.name)}">${esc(m.name)}</div>
+          <div style="margin-top:3px">${fmtBytes(m.bytes)} · ${fmtTime(m.mtime)}</div>
+          <div class="m2-tile__ac">
+            <a class="m2-badge m2-badge--info" href="${esc(m.url)}" target="_blank" rel="noopener">Mở</a>
+            <a class="m2-badge m2-badge--mute" href="${esc(m.url)}" download>Tải về</a>
+            <a class="m2-badge m2-badge--bad" href="javascript:void(0)" onclick="delSingleMedia('${esc(m.name)}')">Xoá</a>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+    updateMediaSelectionUI();
+  }catch(e){ $('mediaGrid').innerHTML = `<div class="m2-empty">Tải thất bại: ${esc(e.message)}</div>`; }
+}
+
+/* ---------- 11. Kiểm thử trực tuyến (tạo ảnh / video) ---------- */
+async function runImage(){
+  const btn = $('imgBtn'), box = $('imgRes');
+  const prompt = $('imgPrompt').value.trim();
+  if (!prompt) return toast('Hãy nhập prompt', 'warn');
+  btn.disabled = true; btn.innerHTML = '<span class="m2-spin"></span>Đang tạo…';
+  box.className = 'm2-result is-show';
+  box.innerHTML = '<span class="m2-spin"></span>Đang gửi tác vụ tạo ảnh, trong lúc tạo sẽ liên tục kiểm tra trạng thái…';
+  const t0 = Date.now();
+  try{
+    let r = await api('/v1/images/tasks', {method:'POST',
+      body: JSON.stringify({prompt, size: $('imgSize').value, timeout:600})});
+    const taskId = r.id;
+    const deadline = Date.now() + 15 * 60 * 1000;
+    let failures = 0;
+    while (r.status !== 'completed') {
+      if (Date.now() >= deadline) throw new Error('Chờ quá 15 phút, hãy xem kết quả trong lịch sử tác vụ, đừng gửi lại nhiều lần');
+      if (r.status === 'failed') throw new Error(r.error || 'Tạo ảnh thất bại');
+      box.textContent = `Tác vụ ${taskId} · ${r.status} · đã chờ ${Math.floor((Date.now()-t0)/1000)} giây`;
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      try {
+        r = await api('/v1/images/tasks/' + encodeURIComponent(taskId));
+        failures = 0;
+      } catch (e) {
+        if (++failures >= 6) throw new Error('Kiểm tra trạng thái tạm thời thất bại, hãy xem trong lịch sử tác vụ, đừng gửi lại nhiều lần');
+      }
+    }
+    const it = r.data[0];
+    box.innerHTML = `<b style="color:var(--m2-ok)">✓ Tạo thành công</b>
+      <span class="m2-mono" style="margin-left:10px">${((Date.now()-t0)/1000).toFixed(1)}s · ${fmtBytes(it.bytes)}</span>
+      <img src="${esc(it.url)}" alt="">
+      <pre>${esc(JSON.stringify(r, null, 2))}</pre>`;
+    loadMedia();
+  }catch(e){
+    box.innerHTML = `<b style="color:var(--m2-danger)">✗ Tạo thất bại</b><pre>${esc(e.message)}</pre>`;
+  }finally{ btn.disabled = false; btn.textContent = 'Bắt đầu tạo ảnh'; }
+}
+
+async function runVideo(){
+  const btn = $('vidBtn'), box = $('vidRes');
+  const prompt = $('vidPrompt').value.trim();
+  if (!prompt) return toast('Hãy nhập prompt', 'warn');
+  btn.disabled = true; btn.innerHTML = '<span class="m2-spin"></span>Đang tạo…';
+  box.className = 'm2-result is-show';
+  box.innerHTML = '<span class="m2-spin"></span>Đang tạo tác vụ video…';
+  const t0 = Date.now();
+  try{
+    const t = await api('/v1/videos', {method:'POST', body: JSON.stringify({
+      prompt, duration: parseInt($('vidDur').value) || 5, size: $('vidSize').value})});
+    const tick = async () => {
+      const s = await api('/v1/videos/' + t.id);
+      const el = ((Date.now()-t0)/1000).toFixed(0);
+      if (s.status === 'succeeded' || s.status === 'completed'){
+        const vurl = (s.result && s.result.url) || s.url || '';
+        const vbytes = (s.result && s.result.bytes) || 0;
+        box.innerHTML = `<b style="color:var(--m2-ok)">✓ Tạo thành công</b>
+          <span class="m2-mono" style="margin-left:10px">${el}s · ${fmtBytes(vbytes)}</span>
+          <video src="${esc(vurl)}" controls playsinline></video>
+          <pre>${esc(JSON.stringify(s, null, 2))}</pre>`;
+        btn.disabled = false; btn.textContent = 'Bắt đầu tạo video';
+        loadMedia(); loadTasks();
+      }else if (s.status === 'failed'){
+        box.innerHTML = `<b style="color:var(--m2-danger)">✗ Tạo thất bại</b><pre>${esc(s.error||'')}</pre>`;
+        btn.disabled = false; btn.textContent = 'Bắt đầu tạo video';
+      }else{
+        box.innerHTML = `<span class="m2-spin"></span>Tác vụ ${esc(s.status)} · đã chờ ${el}s (video thường 60–120 giây)…`;
+        setTimeout(tick, 4000);
+      }
+    };
+    tick();
+  }catch(e){
+    box.innerHTML = `<b style="color:var(--m2-danger)">✗ Tạo tác vụ thất bại</b><pre>${esc(e.message)}</pre>`;
+    btn.disabled = false; btn.textContent = 'Bắt đầu tạo video';
+  }
+}
+
+/* ---------- 12. Phát hiện cập nhật + nâng cấp một chạm ---------- */
+function dismissUpdateBanner(){
+  if (_lastRepoStatus && _lastRepoStatus.remote_sha){
+    _dismissedSha = _lastRepoStatus.remote_sha;
+    localStorage.setItem('muse2api_dismissed_sha', _dismissedSha);
+  }
+  $('updateBanner').classList.remove('is-show');
+}
+
+async function loadRepoStatus(force){
+  try{
+    let s = await api('/admin/update/check' + (force ? '?force=true' : ''));
+    // Nếu server không gọi trực tiếp được GitHub API, trình duyệt sẽ gọi thẳng GitHub API để kiểm tra dự phòng
+    if (!s.remote_sha){
+      try{
+        const gr = await fetch('https://api.github.com/repos/lionels-kayden/muse2api-lio/commits?sha=main&per_page=5');
+        if (gr.ok){
+          const commits = await gr.json();
+          if (Array.isArray(commits) && commits.length){
+            s.remote_sha = (commits[0].sha || '').slice(0, 7);
+            s.remote_msg = ((commits[0].commit || {}).message || '').split('\n')[0];
+            s.recent_commits = commits.map(c => ({
+              sha: (c.sha || '').slice(0, 7),
+              message: ((c.commit || {}).message || '').split('\n')[0],
+              date: ((c.commit || {}).committer || {}).date || '',
+              url: c.html_url || 'https://github.com/lionels-kayden/muse2api-lio'
+            }));
+            if (s.local_sha && s.remote_sha && s.local_sha !== s.remote_sha){
+              s.has_update = true;
+              s.up_to_date = false;
+            }
+          }
+        }
+      }catch(_){}
+    }
+    _lastRepoStatus = s;
+    const badge = $('repoBadge');
+    const topBtn = $('btnRepoTop');
+    const desc = $('repoStatusDesc');
+    const box = $('repoCommitsBox');
+    const banner = $('updateBanner');
+    const lVer = 'v' + (s.local_version || '1.6.1');
+    const rVer = 'v' + (s.remote_version || s.local_version || '1.6.1');
+    $('m2VerText').textContent = lVer + ' · ' + (s.local_sha || 'main');
+
+    if (s.has_update){
+      badge.className = 'm2-badge m2-badge--warn';
+      badge.textContent = `🔔 Có bản mới ${rVer} (${s.remote_sha || 'latest'})`;
+      if (topBtn) { topBtn.classList.add('m2-btn--primary'); topBtn.textContent = `🔔 Cập nhật mới (${s.remote_sha || rVer})`; }
+      $('updBannerVer').textContent = `${lVer} (${s.local_sha || 'bản cũ'}) → ${rVer} (${s.remote_sha || 'mới nhất'})`;
+      $('updBannerMsg').innerHTML = `Commit mới nhất của kho: <b>${esc(s.remote_msg || 'Tối ưu hiệu năng và cập nhật tính năng')}</b> · Bấm “⚡ Nâng cấp trực tuyến một chạm” để tự động kéo cập nhật (giữ lại cấu hình cục bộ và dữ liệu tài khoản).`;
+      if (_dismissedSha !== s.remote_sha) banner.classList.add('is-show');
+      if (_notifiedSha !== s.remote_sha && s.remote_sha){
+        _notifiedSha = s.remote_sha;
+        localStorage.setItem('muse2api_notified_sha', _notifiedSha);
+        toast(`🔔 Kho chính thức đã phát hành cập nhật mới (${s.remote_sha}): ${s.remote_msg || 'bấm nâng cấp một chạm'}`, 'warn');
+      }
+    } else {
+      badge.className = 'm2-badge m2-badge--ok';
+      badge.textContent = `✓ Đã là mới nhất ${lVer} (${s.local_sha || 'main'})`;
+      if (topBtn) { topBtn.classList.remove('m2-btn--primary'); topBtn.textContent = `📦 ${lVer} · đã là mới nhất`; }
+      banner.classList.remove('is-show');
+    }
+
+    desc.innerHTML = `Phiên bản đang triển khai: <code>${esc(lVer)}</code> (Commit: <code>${esc(s.local_sha || '—')}</code>) · ` +
+      `Kho chính thức trên GitHub mới nhất: <code>${esc(rVer)}</code> (Commit: <code>${esc(s.remote_sha || '—')}</code> ${esc(s.remote_msg || '')})`;
+
+    let html = '';
+    if (Array.isArray(s.highlights) && s.highlights.length){
+      html += `<div style="margin-bottom:8px"><b style="color:var(--m2-text)">✨ Tính năng cốt lõi của phiên bản hiện tại (${esc(rVer)}): </b><ul style="margin:4px 0 0 18px;padding:0;color:var(--m2-text-2)">` +
+        s.highlights.map(h => `<li>${esc(h)}</li>`).join('') + `</ul></div>`;
+    }
+    if (Array.isArray(s.recent_commits) && s.recent_commits.length){
+      html += `<div><b style="color:var(--m2-text)">📜 Diễn biến commit gần đây của kho chính thức: </b><div style="margin-top:5px;display:flex;flex-direction:column;gap:4px">` +
+        s.recent_commits.slice(0, 5).map(c =>
+          `<div style="display:flex;gap:8px;align-items:center"><a href="${esc(c.url)}" target="_blank" rel="noopener" class="m2-mono" style="color:var(--m2-primary)">[${esc(c.sha)}]</a><span>${esc(c.message)}</span><span class="m2-mono" style="margin-left:auto">${esc((c.date||'').replace('T',' ').replace('Z',''))}</span></div>`
+       ).join('') + `</div></div>`;
+    }
+    if (box) box.innerHTML = html || '<span style="color:var(--m2-text-2)">Chưa có lịch sử commit</span>';
+    if (force) toast(s.has_update ? '🔔 Phát hiện cập nhật phiên bản mới!' : '✓ Hiện đã là phiên bản mới nhất của kho chính thức', s.has_update ? 'warn' : 'ok');
+  }catch(e){
+    if ($('repoBadge')) { $('repoBadge').className = 'm2-badge m2-badge--mute'; $('repoBadge').textContent = 'Chờ xác thực'; }
+  }
+}
+
+async function upgradeNow(){
+  const ok = await confirmDialog({
+    title: 'Nâng cấp trực tuyến?',
+    desc: 'Xác nhận kéo mã mới nhất từ kho chính thức GitHub (lionels-kayden/muse2api-lio) và tự động khởi động lại dịch vụ ngay bây giờ?<br><br>Khoá <code>.env</code> cục bộ, Cookie trong pool tài khoản và các tệp media đã tạo đều được tự động giữ lại, không bị ảnh hưởng gì.',
+    confirmLabel: 'Nâng cấp ngay', danger: true,
+  });
+  if (!ok) return;
+  const btn1 = $('btnRepoPull'), btn2 = $('btnBannerUpgrade');
+  if (btn1) { btn1.disabled = true; btn1.innerHTML = '<span class="m2-spin"></span>Đang cập nhật…'; }
+  if (btn2) { btn2.disabled = true; btn2.innerHTML = '<span class="m2-spin"></span>Đang cập nhật…'; }
+  try{
+    const r = await api('/admin/update/upgrade', {method: 'POST', body: JSON.stringify({restart: true})});
+    toast('✓ ' + (r.message || 'Cập nhật hoàn tất') + ', dịch vụ đang khởi động lại, khi sẵn sàng sẽ tự động làm mới trang…', 'ok');
+    $('updateBanner').classList.remove('is-show');
+    let tries = 0;
+    const waitReady = async () => {
+      tries++;
+      try{
+        const hr = await fetch('/healthz?t=' + Date.now(), {cache: 'no-store'});
+        if (hr.ok) { location.reload(); return; }
+      }catch(_){}
+      if (tries < 20) setTimeout(waitReady, 1000);
+      else location.reload();
+    };
+    setTimeout(waitReady, 2500);
+  }catch(e){
+    toast('Cập nhật trực tuyến thất bại: ' + e.message, 'bad');
+    if (btn1) { btn1.disabled = false; btn1.textContent = '⚡ Cập nhật trực tuyến'; }
+    if (btn2) { btn2.disabled = false; btn2.textContent = '⚡ Nâng cấp trực tuyến một chạm'; }
+  }
+}
+
+/* ---------- 13. Tổng quan trạng thái + khởi động ---------- */
+async function loadStatus(){
+  try{
+    const d = await api('/admin/status');
+    $('pSvc').className = 'm2-pill is-on';
+    $('pSvc').innerHTML = '<span class="m2-led"></span>Dịch vụ <b>Bình thường</b>';
+    $('pBr').className = 'm2-pill ' + (d.browser_running ? 'is-on' : 'is-off');
+    $('pBr').innerHTML = `<span class="m2-led"></span>Trình duyệt <b>${d.browser_running ? 'Đang chạy' : 'Rảnh'}</b>`;
+    $('sMedia').textContent = d.media_count ?? 0;
+    if (d.base_url){ $('dBase').textContent = d.base_url; $('inBase').value = d.base_url; }
+  }catch(e){
+    if (authOK === false){
+      $('pSvc').className = 'm2-pill';
+      $('pSvc').innerHTML = '<span class="m2-led"></span>Dịch vụ <b>Chờ đăng nhập</b>';
+    } else {
+      $('pSvc').className = 'm2-pill is-off';
+      $('pSvc').innerHTML = '<span class="m2-led"></span>Dịch vụ <b>' + esc(e.message).slice(0,28) + '</b>';
+    }
+  }
+}
+
+function refreshAll(){ loadStatus(); loadPool(); loadApikey(); loadRepoStatus(false); }
+
+/* Đóng modal khi bấm nền / Esc; nút xác nhận trả về true */
+(function initModal(){
+  const m = $('m2Modal');
+  m.addEventListener('click', e => { if (e.target === m) closeModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && m.classList.contains('is-open')) closeModal(); });
+  $('m2ModalCancel').onclick = () => closeModal();
+  $('m2ModalOk').onclick = () => _modalClose(true);
+})();
+
+/* Khởi động: đọc hash để mở đúng trang, rồi nạp dữ liệu */
+(function boot(){
+  $('key').value = KEY;
+  $('dBase').textContent = location.origin + '/v1';
+  const hash = (location.hash || '').replace('#', '');
+  if (hash && document.querySelector(`.m2-page[data-page="${hash}"]`)) goPage(hash);
+  refreshAll();
+})();
+
+setInterval(() => {
+  if (_paused) return;
+  loadStatus(); loadPool();
+  const t = document.querySelector('.m2-page[data-page="tasks"]');
+  if (t && t.classList.contains('is-active')) loadTasks();
+}, 8000);
+setInterval(() => { if (!_paused) loadRepoStatus(false); }, 60000);
+</script>
+</body>
+</html>

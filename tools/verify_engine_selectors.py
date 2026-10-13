@@ -1,12 +1,12 @@
-"""直接用 engine.py 的现网 JS 片段打真页面，验证 / 修正选择器。
+"""Dùng thẳng các đoạn JS chạy thật của engine.py để đánh vào trang thật, kiểm tra / chỉnh lại selector.
 
-用法：
+Cách dùng:
   python3 tools/verify_engine_selectors.py
-会：
-  1) 连到现网 muse.ai 页面
-  2) 跑 engine._ATT_JS -> 打印抓到的附件
-  3) 跑 engine 的注入 + 等待确认逻辑，测「移除附件」按钮是否出现
-  4) 打印当前 composer 里所有 button[aria-label]
+Sẽ:
+  1) Kết nối tới trang muse.ai đang chạy thật
+  2) Chạy engine._ATT_JS -> in ra các file đính kèm lấy được
+  3) Chạy logic inject + chờ xác nhận của engine, kiểm tra nút "Remove attachment" có xuất hiện không
+  4) In ra tất cả button[aria-label] hiện có trong composer
 """
 from __future__ import annotations
 
@@ -31,16 +31,16 @@ def find_page_ws():
     for p in pages:
         if p.get("type") == "page" and "muse.ai" in (p.get("url") or ""):
             return p.get("webSocketDebuggerUrl"), p.get("url")
-    raise SystemExit("没找到 muse.ai 页面")
+    raise SystemExit("Không tìm thấy trang muse.ai")
 
 
 class FakeEngine:
-    """只带 page 的小壳，复用 engine 的 JS / 逻辑。"""
+    """Lớp vỏ nhỏ chỉ mang theo page, tái sử dụng JS / logic của engine."""
     def __init__(self, page):
         self.page = page
         self.cfg = SimpleNamespace(media_dir="/tmp", profile_dir="/tmp")
 
-    # 借用真方法
+    # Mượn các phương thức thật
     attachments = E.MuseEngine.attachments
     _clear_attachments = E.MuseEngine._clear_attachments
 
@@ -51,10 +51,10 @@ def main():
     c = CDP(ws)
     e = FakeEngine(c)
     try:
-        # 0) composer 所有 aria-label
+        # 0) tất cả aria-label của composer
         labels = c.js("""JSON.stringify(Array.from(document.querySelectorAll('button[aria-label]'))
             .map(function(b){return b.getAttribute('aria-label');}))""")
-        print("=== button[aria-label] on page ===")
+        print("=== button[aria-label] trên trang ===")
         print(labels)
 
         # 1) engine._ATT_JS
@@ -64,11 +64,11 @@ def main():
             print("  ", json.dumps({k: (str(v)[:70] if k.endswith('Src') or k == 'src' else v)
                                     for k, v in a.items()}, ensure_ascii=False))
 
-        # 2) 注入 + 两种确认判据
-        print("\n=== 注入 1x1 PNG ===")
+        # 2) inject + hai tiêu chí xác nhận
+        print("\n=== Inject 1x1 PNG ===")
         res = c.js(E.MuseEngine._attach_image.__doc__ and
                    "0" or "0")  # noop placeholder
-        # 直接搬 engine 的注入 JS
+        # Bê nguyên đoạn JS inject của engine
         inject = """(function(b64, mime){
             var bin=atob(b64); var arr=new Uint8Array(bin.length);
             for(var i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
@@ -96,7 +96,7 @@ def main():
                 print(f"  [t={i*0.5+0.5}s] OLD(Remove attachment EN)={old}  NEW(移除附件 ZH)={zh}  composerImgs={img}")
                 if old or zh:
                     break
-        # 清理
+        # Dọn dẹp
         print("clear:", e._clear_attachments())
     finally:
         c.close()
